@@ -8,6 +8,8 @@ export interface Destination {
   code: string; // flagcdn 2-letter code
   name: string;
   flag: string;
+  heroImage: string;
+  heroImageAlt: string;
   metaTitle: string;
   metaDescription: string;
   h1: string;
@@ -32,6 +34,8 @@ export const DESTINATIONS: Destination[] = [
     code: 'gb',
     name: 'United Kingdom',
     flag: '🇬🇧',
+    heroImage: '/images/destinations/uk.jpg',
+    heroImageAlt: 'Christ Church College, Oxford University',
     metaTitle: 'Study in the UK from Uzbekistan/Tajikistan | Universe In',
     metaDescription: 'Apply to UK universities from Uzbekistan or Tajikistan: Student visa (CAS) process, UCAS timelines, real costs, and a free consultation with Universe In.',
     h1: 'Study in the UK: From Tashkent or Dushanbe to a UK Campus in One Year',
@@ -59,6 +63,8 @@ export const DESTINATIONS: Destination[] = [
     code: 'us',
     name: 'United States',
     flag: '🇺🇸',
+    heroImage: '/images/destinations/usa.jpg',
+    heroImageAlt: 'Aerial view of Manhattan, New York City',
     metaTitle: 'Study in the USA from Uzbekistan/Tajikistan | Universe In',
     metaDescription: 'Apply to US universities from Uzbekistan or Tajikistan: F-1 visa steps, SEVIS/I-20, real costs, OPT work rights, and a free consultation with Universe In.',
     h1: 'Study in the USA: Building a Competitive F-1 Application from Central Asia',
@@ -86,6 +92,8 @@ export const DESTINATIONS: Destination[] = [
     code: 'ca',
     name: 'Canada',
     flag: '🇨🇦',
+    heroImage: '/images/destinations/canada.jpg',
+    heroImageAlt: 'Toronto skyline with the CN Tower at dusk',
     metaTitle: 'Study in Canada from Uzbekistan/Tajikistan | Universe In',
     metaDescription: 'Apply to Canadian colleges and universities from Uzbekistan or Tajikistan: Study Permit process, costs, PGWP work rights, free consultation with Uni In.',
     h1: 'Study in Canada: A Study Permit Route with a Real Path to Staying',
@@ -113,6 +121,8 @@ export const DESTINATIONS: Destination[] = [
     code: 'au',
     name: 'Australia',
     flag: '🇦🇺',
+    heroImage: '/images/destinations/australia.jpg',
+    heroImageAlt: 'Sydney Opera House illuminated at night',
     metaTitle: 'Study in Australia from Uzbekistan/Tajikistan | Uni In',
     metaDescription: 'Apply to Australian universities from Uzbekistan or Tajikistan: Subclass 500 visa process, costs, post-study work rights, free consultation with Uni In.',
     h1: 'Study in Australia: What the Subclass 500 Visa Actually Requires',
@@ -140,6 +150,8 @@ export const DESTINATIONS: Destination[] = [
     code: 'nz',
     name: 'New Zealand',
     flag: '🇳🇿',
+    heroImage: '/images/destinations/new-zealand.jpg',
+    heroImageAlt: 'Lake Pukaki and Aoraki/Mount Cook, New Zealand',
     metaTitle: 'Study in New Zealand from Uzbekistan/Tajikistan | Uni In',
     metaDescription: 'Apply to New Zealand institutions from Uzbekistan or Tajikistan: student visa process, real costs, post-study work rights, and a free consultation with Uni In.',
     h1: 'Study in New Zealand: A Less Crowded Path to a Western Degree',
@@ -167,6 +179,8 @@ export const DESTINATIONS: Destination[] = [
     code: 'nl',
     name: 'Netherlands',
     flag: '🇳🇱',
+    heroImage: '/images/destinations/netherlands.jpg',
+    heroImageAlt: 'Canal houses along an Amsterdam canal',
     metaTitle: 'Study in Netherlands from Uzbekistan/Tajikistan | Universe In',
     metaDescription: "Learn how Uzbek and Tajik students get the MVV visa, choose English-taught programs, and apply to Dutch universities. Book a free consultation with Universe In.",
     h1: 'Study in the Netherlands: English-Taught Degrees and MVV Visa Support for Uzbek & Tajik Students',
@@ -194,6 +208,8 @@ export const DESTINATIONS: Destination[] = [
     code: 'ae',
     name: 'UAE',
     flag: '🇦🇪',
+    heroImage: '/images/destinations/uae.jpg',
+    heroImageAlt: 'Burj Khalifa and the Dubai skyline',
     metaTitle: 'Study in the UAE from Uzbekistan/Tajikistan | Universe In',
     metaDescription: 'See how Uzbek and Tajik students get a UAE student visa, pick affordable English-medium universities, and apply fast. Book a free consultation with Universe In.',
     h1: 'Study in the UAE: Fast Visas and English-Medium Degrees Close to Home for Uzbek & Tajik Students',
@@ -221,6 +237,8 @@ export const DESTINATIONS: Destination[] = [
     code: 'de',
     name: 'Germany',
     flag: '🇩🇪',
+    heroImage: '/images/destinations/germany.jpg',
+    heroImageAlt: 'The Brandenburg Gate and TV Tower, Berlin',
     metaTitle: 'Study in Germany from Uzbekistan/Tajikistan | Universe In',
     metaDescription: "Learn how Uzbek and Tajik students get Germany's student visa, apply to tuition-free universities, and prove funds. Free consultation with Universe In.",
     h1: 'Study in Germany: Tuition-Free Public Universities and an 18-Month Job Search Visa for Uzbek & Tajik Students',
@@ -248,6 +266,8 @@ export const DESTINATIONS: Destination[] = [
     code: 'fr',
     name: 'France',
     flag: '🇫🇷',
+    heroImage: '/images/destinations/france.jpg',
+    heroImageAlt: 'The Eiffel Tower, Paris',
     metaTitle: 'Study in France from Uzbekistan/Tajikistan | Universe In',
     metaDescription: 'See how Uzbek and Tajik students apply via Campus France, get the VLS-TS visa, and choose universities or Grandes Ecoles. Free consultation with Universe In.',
     h1: "Study in France: Low-Cost Public Universities and the Grande Ecole System for Uzbek & Tajik Students",
@@ -275,6 +295,8 @@ export const DESTINATIONS: Destination[] = [
     code: 'ie',
     name: 'Ireland',
     flag: '🇮🇪',
+    heroImage: '/images/destinations/ireland.jpg',
+    heroImageAlt: "Trinity College Dublin's campanile",
     metaTitle: 'Study in Ireland from Uzbekistan/Tajikistan | Universe In',
     metaDescription: "Learn how Uzbek and Tajik students get Ireland's study visa, apply to English-taught universities, and budget for Dublin. Free consultation with Universe In.",
     h1: "Study in Ireland: An English-Speaking Gateway to Europe's Tech Hub for Uzbek & Tajik Students",

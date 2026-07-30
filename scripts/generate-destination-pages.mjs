@@ -86,16 +86,18 @@ function renderPage(d) {
       </header>
 
       <main>
-        <section class="hero" style="padding-bottom:48px;">
-          <div class="hero-inner" style="max-width:760px;text-align:center;">
-            <div class="hero-badge"><div class="hero-badge-dot"></div><span>${d.flag} ${escapeHtml(d.name)}</span></div>
-            <h1 class="hero-title" style="font-size:clamp(32px, 5vw, 56px);">${escapeHtml(d.h1)}</h1>
-            <p class="hero-sub" style="margin:0 auto 32px;">${escapeHtml(d.intro)}</p>
+        <section class="dest-hero">
+          <img src="${d.heroImage}" alt="${escapeHtml(d.heroImageAlt)}" class="dest-hero-img" />
+          <div class="dest-hero-overlay"></div>
+          <div class="dest-hero-content">
+            <img class="dest-hero-flag" src="https://flagcdn.com/48x36/${d.code}.png" srcset="https://flagcdn.com/96x72/${d.code}.png 2x" width="48" height="36" alt="${escapeHtml(d.name)} flag" />
+            <h1 class="dest-hero-title">${escapeHtml(d.h1)}</h1>
+            <p class="dest-hero-intro">${escapeHtml(d.intro)}</p>
             <div class="cta-group" style="align-items:center;">
               <a class="btn-primary" href="/apply" style="text-decoration:none;">
                 <span>Check My Eligibility</span>
               </a>
-              <span class="cta-note">Free &middot; 2 minutes &middot; No commitment</span>
+              <span class="dest-hero-note">Free &middot; 2 minutes &middot; No commitment</span>
             </div>
           </div>
         </section>

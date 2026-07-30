@@ -41,15 +41,19 @@ export default function DestinationPage({ destination: d }: DestinationPageProps
       <UrgencyBar />
       <Navbar />
 
-      <section className="hero" style={{ paddingBottom: 48 }}>
-        <div className="hero-grid" />
-        <div className="hero-inner" style={{ maxWidth: 760, textAlign: 'center', position: 'relative', zIndex: 1 }}>
-          <div className="hero-badge">
-            <div className="hero-badge-dot" />
-            <span>{d.flag} {d.name}</span>
-          </div>
-          <h1 className="hero-title" style={{ fontSize: 'clamp(32px, 5vw, 56px)' }}>{d.h1}</h1>
-          <p className="hero-sub" style={{ margin: '0 auto 32px' }}>{d.intro}</p>
+      <section className="dest-hero">
+        <img src={d.heroImage} alt={d.heroImageAlt} className="dest-hero-img" />
+        <div className="dest-hero-overlay" />
+        <div className="dest-hero-content">
+          <img
+            className="dest-hero-flag"
+            src={`https://flagcdn.com/48x36/${d.code}.png`}
+            srcSet={`https://flagcdn.com/96x72/${d.code}.png 2x`}
+            width={48} height={36}
+            alt={`${d.name} flag`}
+          />
+          <h1 className="dest-hero-title">{d.h1}</h1>
+          <p className="dest-hero-intro">{d.intro}</p>
           <div className="cta-group" style={{ alignItems: 'center' }}>
             <button className="btn-primary" onClick={goToApply}>
               <span>Check My Eligibility</span>
@@ -57,7 +61,7 @@ export default function DestinationPage({ destination: d }: DestinationPageProps
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </button>
-            <span className="cta-note">Free · 2 minutes · No commitment</span>
+            <span className="dest-hero-note">Free · 2 minutes · No commitment</span>
           </div>
         </div>
       </section>
