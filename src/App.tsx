@@ -14,7 +14,6 @@ import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 import FloatCTA from './components/FloatCTA';
 import { UniverseQuiz } from './components/UniverseQuiz';
-import EnquiryForm from './components/EnquiryForm';
 
 function LandingPage({ initialQuizOpen = false }: { initialQuizOpen?: boolean }) {
 const [quizOpen, setQuizOpen] = useState(initialQuizOpen);
@@ -76,10 +75,20 @@ const [quizOpen, setQuizOpen] = useState(initialQuizOpen);
   );
 }
 
+const TITLES: Record<'landing' | 'apply', { title: string; description: string }> = {
+  landing: {
+    title: 'Universe In — Study Abroad from Central Asia',
+    description: 'UK-registered study abroad consultancy helping students from Uzbekistan and Tajikistan access world-class universities. Free guidance, visa support, scholarships.',
+  },
+  apply: {
+    title: 'Check Your Chances — Free 2-Minute Quiz | Universe In',
+    description: 'Answer a few questions about your budget, English level, and timeline to see which universities and scholarships you qualify for. Free, takes 2 minutes.',
+  },
+};
+
 export default function App() {
-  const [page, setPage] = useState<'landing' | 'enquiry' | 'apply'>(() => {
+  const [page, setPage] = useState<'landing' | 'apply'>(() => {
     const p = window.location.pathname;
-    if (p === '/enquiry') return 'enquiry';
     if (p === '/apply') return 'apply';
     return 'landing';
   });
@@ -87,16 +96,21 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       const p = window.location.pathname;
-      setPage(p === '/enquiry' ? 'enquiry' : p === '/apply' ? 'apply' : 'landing');
+      setPage(p === '/apply' ? 'apply' : 'landing');
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  useEffect(() => {
+    const meta = TITLES[page];
+    document.title = meta.title;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', meta.description);
+  }, [page]);
+
   return (
     <LangProvider>
-      {page === 'enquiry' ? <EnquiryForm />
-       : page === 'apply' ? <><Cursor /><UniverseQuiz variant="page" /></>
+      {page === 'apply' ? <><Cursor /><UniverseQuiz variant="page" /></>
        : <LandingPage />}
     </LangProvider>
   );

@@ -1,7 +1,7 @@
 import { Phone, Mail, MapPin, Building2, Globe } from 'lucide-react';
 import { useLang } from '../contexts/LangContext';
 
-const LOGO = 'https://images2.imgbox.com/26/e7/4aGfmDdL_o.jpg';
+const LOGO = '/logo.png';
 
 const SOCIALS = [
   {
@@ -21,7 +21,7 @@ const SOCIALS = [
   },
 ];
 
-const ICEF_LOGO = 'https://images2.imgbox.com/9e/6f/s52XIYDk_o.png';
+const ICEF_LOGO = '/logos/icef.png';
 
 export default function Footer() {
   const { t } = useLang();

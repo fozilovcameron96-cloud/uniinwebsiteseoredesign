@@ -4,18 +4,18 @@ export default function Testimonials() {
   const { t } = useLang();
 
   return (
-    <section className="tm-section">
+    <section className="tm-section tm-section-dark">
       <div className="tm-inner">
 
         <div className="accred-section reveal">
-          <div className="section-label" style={{ justifyContent: "center", marginBottom: 10 }}>
+          <div className="section-label accred-label-dark" style={{ justifyContent: "center", marginBottom: 10 }}>
             <div className="dot" />
             <span>RECOGNISED & ACCREDITED BY</span>
           </div>
-          <h2 className="section-h2" style={{ textAlign: "center", marginBottom: 8 }}>
+          <h2 className="section-h2 accred-h2-dark" style={{ textAlign: "center", marginBottom: 8 }}>
             Officially recognised.<br />Globally trusted.
           </h2>
-          <p className="accred-intro">
+          <p className="accred-intro accred-intro-dark">
             Universe In holds accreditations from two of the most respected international education bodies in the world.
           </p>
 
@@ -24,7 +24,7 @@ export default function Testimonials() {
             <div className="accred-card-p">
               <div className="accred-logo-wrap">
                 <img
-                  src="https://edmat.org/awards/bc.png"
+                  src="/logos/british-council.png"
                   alt="British Council"
                   className="accred-img"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
@@ -49,7 +49,7 @@ export default function Testimonials() {
             <div className="accred-card-p">
               <div className="accred-logo-wrap">
                 <img
-                  src="https://images2.imgbox.com/9e/6f/s52XIYDk_o.png"
+                  src="/logos/icef.png"
                   alt="ICEF"
                   className="accred-img"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
@@ -73,7 +73,7 @@ export default function Testimonials() {
 
           </div>
 
-          <div className="accred-trust-bar">
+          <div className="accred-trust-bar accred-trust-bar-dark">
             <div className="accred-trust-item"><span className="accred-check">✓</span> Free for students — always</div>
             <div className="accred-trust-sep" />
             <div className="accred-trust-item"><span className="accred-check">✓</span> UK-registered company</div>
@@ -85,6 +85,18 @@ export default function Testimonials() {
       </div>
 
       <style>{`
+        .tm-section-dark {
+          background: var(--navy);
+          border-top-color: transparent;
+        }
+        .accred-label-dark span { color: var(--o); }
+        .accred-h2-dark { color: #fff; }
+        .accred-intro-dark { color: rgba(255,255,255,0.55); }
+        .accred-trust-bar-dark {
+          border-top-color: rgba(255,255,255,0.12);
+        }
+        .accred-trust-bar-dark .accred-trust-item { color: rgba(255,255,255,0.7); }
+        .accred-trust-bar-dark .accred-trust-sep { background: rgba(255,255,255,0.15); }
         .accred-intro {
           text-align: center;
           font-size: 14px;

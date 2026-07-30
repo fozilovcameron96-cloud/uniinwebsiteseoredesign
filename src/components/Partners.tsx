@@ -1,19 +1,19 @@
 import { useRef, useEffect } from 'react';
 import { useLang } from '../contexts/LangContext';
 
+// Locally bundled - previously hotlinked from 9 different third-party domains
+// (a broken Jumpshare share-link, 3 unidentifiable Google-thumbnail proxy URLs,
+// and one unrelated fontsinuse.com image) with zero uptime guarantee. Vite
+// bundles/hashes these automatically.
 const LOGOS = [
-  'https://jumpshare.com/share/zsUS7agyqrZxTTBAYasQ',
-  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpW5dOV1J8WOULMEWQGv6GCdYHF6AArNmMMQ&s',
-  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLkloBMcChCHRfjUCPLimyKBgz-qMq3kJzxQ&s',
-  'https://www.boosteducationservice.co.uk/wp-content/uploads/2018/07/studygrouplogo.jpg.webp',
-  'https://student-cms.prd.timeshighereducation.com/sites/default/files/inline-images/INTO_logo_red.png',
-  'https://www.oncampus.global/themes/custom/oncampus/assets/img/logo.svg',
-  'https://www.stgiles-international.com/wp-content/uploads/2023/06/65th-logoNew.png',
-  'https://corporate.shorelight.com/wp-content/uploads/2017/05/Shorelight-Logo-640x640-orange.png',
-  'https://fiu-original.b-cdn.net/fontsinuse.com/use-images/N187/187302/187302.png',
-  'https://upload.wikimedia.org/wikipedia/commons/b/b6/HULT_IBS_Logo_Outline_Black_%28cropped%29.png',
-  'https://upload.wikimedia.org/wikipedia/commons/0/03/Heriot-Watt_University_logo.svg',
-  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpRFd-TZXHM_3XpVgFwixRIXA9WGgfJ_oygw&s',
+  { src: '/logos/study-group.webp', alt: 'Study Group' },
+  { src: '/logos/into.png', alt: 'INTO' },
+  { src: '/logos/oncampus.svg', alt: 'OnCampus' },
+  { src: '/logos/st-giles.png', alt: 'St Giles International' },
+  { src: '/logos/shorelight.png', alt: 'Shorelight' },
+  { src: '/logos/hult.png', alt: 'Hult International Business School' },
+  { src: '/logos/heriot-watt.svg', alt: 'Heriot-Watt University' },
+  { src: '/logos/british-council.png', alt: 'British Council' },
 ];
 
 const TRACK = [...LOGOS, ...LOGOS];
@@ -59,9 +59,9 @@ export default function Partners() {
           onMouseEnter={() => { pausedRef.current = true; }}
           onMouseLeave={() => { pausedRef.current = false; }}
         >
-          {TRACK.map((src, i) => (
+          {TRACK.map((logo, i) => (
             <div className="carousel-item" key={i}>
-              <img src={src} alt="Partner logo" loading="lazy" />
+              <img src={logo.src} alt={logo.alt} loading="lazy" />
             </div>
           ))}
         </div>

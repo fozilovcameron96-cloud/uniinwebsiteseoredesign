@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLang } from '../contexts/LangContext';
 import { Lang } from '../data/translations';
 
-const LOGO = 'https://images2.imgbox.com/26/e7/4aGfmDdL_o.jpg';
+const LOGO = '/logo.png';
 
 export default function Navbar() {
   const { lang, setLang } = useLang();
