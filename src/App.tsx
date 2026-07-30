@@ -14,6 +14,8 @@ import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 import FloatCTA from './components/FloatCTA';
 import { UniverseQuiz } from './components/UniverseQuiz';
+import DestinationPage from './components/DestinationPage';
+import { getDestination } from './data/destinations';
 
 function LandingPage({ initialQuizOpen = false }: { initialQuizOpen?: boolean }) {
 const [quizOpen, setQuizOpen] = useState(initialQuizOpen);
@@ -86,31 +88,40 @@ const TITLES: Record<'landing' | 'apply', { title: string; description: string }
   },
 };
 
+type PageState = { type: 'landing' } | { type: 'apply' } | { type: 'destination'; slug: string };
+
+function resolvePath(pathname: string): PageState {
+  if (pathname === '/apply') return { type: 'apply' };
+  const match = pathname.match(/^\/study-in-([a-z-]+)\/?$/);
+  if (match && getDestination(match[1])) return { type: 'destination', slug: match[1] };
+  return { type: 'landing' };
+}
+
 export default function App() {
-  const [page, setPage] = useState<'landing' | 'apply'>(() => {
-    const p = window.location.pathname;
-    if (p === '/apply') return 'apply';
-    return 'landing';
-  });
+  const [page, setPage] = useState<PageState>(() => resolvePath(window.location.pathname));
 
   useEffect(() => {
-    const handlePopState = () => {
-      const p = window.location.pathname;
-      setPage(p === '/apply' ? 'apply' : 'landing');
-    };
+    const handlePopState = () => setPage(resolvePath(window.location.pathname));
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   useEffect(() => {
-    const meta = TITLES[page];
+    // Destination pages set their own title/meta/schema - only landing/apply use this static map.
+    if (page.type === 'destination') return;
+    const meta = TITLES[page.type];
     document.title = meta.title;
     document.querySelector('meta[name="description"]')?.setAttribute('content', meta.description);
   }, [page]);
 
+  if (page.type === 'destination') {
+    const dest = getDestination(page.slug);
+    if (dest) return <LangProvider><DestinationPage destination={dest} /></LangProvider>;
+  }
+
   return (
     <LangProvider>
-      {page === 'apply' ? <><Cursor /><UniverseQuiz variant="page" /></>
+      {page.type === 'apply' ? <><Cursor /><UniverseQuiz variant="page" /></>
        : <LandingPage />}
     </LangProvider>
   );

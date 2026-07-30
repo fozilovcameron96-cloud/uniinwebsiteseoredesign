@@ -191,7 +191,7 @@ nav.scrolled { box-shadow: 0 4px 24px rgba(0,0,0,.06); }
 .dest-grid { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 28px; }
 .dest-chip {
   display: flex; align-items: center; gap: 9px; padding: 6px 0;
-  cursor: default; transition: opacity .18s;
+  cursor: pointer; transition: opacity .18s; text-decoration: none;
 }
 .dest-chip:hover { opacity: .65; }
 .dest-chip .flag { font-size: 18px; }
