@@ -33,7 +33,8 @@ export default function DestinationPage({ destination: d }: DestinationPageProps
     return () => { document.head.removeChild(script); };
   }, [d]);
 
-  const goToApply = () => { window.location.href = '/apply'; };
+  // Destination pages are English-only content, so route to the English apply flow.
+  const goToApply = () => { window.location.href = '/en/apply'; };
 
   return (
     <>

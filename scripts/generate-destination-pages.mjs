@@ -79,7 +79,7 @@ function renderPage(d) {
   <body>
     <div id="root">
       <header style="position:sticky;top:0;z-index:100;padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);">
-        <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+        <a href="/en/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
           <img src="/logo.png" alt="Universe In" width="40" height="40" style="border-radius:10px;object-fit:cover;" />
           <span style="font-weight:800;font-size:16px;color:var(--text);">Universe<em style="color:var(--o);font-style:normal;">.in</em></span>
         </a>
@@ -94,7 +94,7 @@ function renderPage(d) {
             <h1 class="dest-hero-title">${escapeHtml(d.h1)}</h1>
             <p class="dest-hero-intro">${escapeHtml(d.intro)}</p>
             <div class="cta-group" style="align-items:center;">
-              <a class="btn-primary" href="/apply" style="text-decoration:none;">
+              <a class="btn-primary" href="/en/apply" style="text-decoration:none;">
                 <span>Check My Eligibility</span>
               </a>
               <span class="dest-hero-note">Free &middot; 2 minutes &middot; No commitment</span>
@@ -160,7 +160,7 @@ function renderPage(d) {
             <div class="section-label" style="justify-content:center;"><div class="dot"></div><span>Ready to find out?</span></div>
             <h2 class="final-title">See if ${escapeHtml(d.name)} is right for you.</h2>
             <p class="final-sub">Free 2-minute quiz &mdash; get matched with universities that actually fit your budget and level.</p>
-            <a class="btn-final" href="/apply" style="margin:0 auto;text-decoration:none;">
+            <a class="btn-final" href="/en/apply" style="margin:0 auto;text-decoration:none;">
               <span>Check My Eligibility</span>
             </a>
           </div>
@@ -169,7 +169,7 @@ function renderPage(d) {
 
       <footer class="footer-root">
         <div class="footer-wrap" style="grid-template-columns:1fr;text-align:center;padding-bottom:32px;">
-          <p style="color:rgba(255,255,255,.55);font-size:13px;">Universe In &bull; <a href="/" style="color:var(--o);">uni-in.co.uk</a></p>
+          <p style="color:rgba(255,255,255,.55);font-size:13px;">Universe In &bull; <a href="/en/" style="color:var(--o);">uni-in.co.uk</a></p>
         </div>
       </footer>
     </div>
