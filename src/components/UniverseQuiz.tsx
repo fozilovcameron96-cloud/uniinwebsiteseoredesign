@@ -223,7 +223,7 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
   const [step, setStep]             = useState(0)
   const [answers, setAnswers]       = useState({})
   const [otherText, setOtherText]   = useState({})
-  const [contact, setContact]       = useState({ name:'', whatsapp:'', email:'' })
+  const [contact, setContact]       = useState({ name:'', whatsapp:'', email:'', notes:'' })
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone]             = useState(false)
   const [priority, setPriority]     = useState('cold')
@@ -234,9 +234,22 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
   const pct       = Math.round((step / (STEPS.length + 1)) * 100)
   const cur       = !isContact ? STEPS[step] : null
   const selVal    = cur ? answers[cur.key] : null
-  const showOther = !!(cur?.other && selVal === '')
+  // A custom ("Other") answer typed on a previous visit to this step won't match any
+  // option label - detect that case so navigating back re-shows it instead of looking unanswered.
+  const isCustomAnswer = !!(cur?.other && selVal && !cur.options.includes(selVal))
+  const showOther = !!(cur?.other && (selVal === '' || isCustomAnswer))
 
   useEffect(() => { if (showOther) otherRef.current?.focus() }, [showOther])
+  useEffect(() => {
+    if (isCustomAnswer && cur && otherText[cur.key] === undefined) {
+      setOtherText(p => ({ ...p, [cur.key]: selVal }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step])
+
+  function goBack() {
+    setStep(s => Math.max(0, s - 1))
+  }
 
   function pick(opt) {
     const isOther = !!(cur.other && opt === cur.other)
@@ -267,7 +280,7 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
           whatsapp: contact.whatsapp.trim(),
           email: contact.email.trim(),
           source: 'quiz',
-          answers,
+          answers: { ...answers, notes: contact.notes.trim() },
         }),
       })
       if (!res.ok) throw new Error()
@@ -436,6 +449,16 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
 
           ) : !isContact ? (
             <StepPane id={step}>
+              {step > 0 && (
+                <button onClick={goBack} style={{
+                  display:'flex', alignItems:'center', gap:'.3rem', marginBottom:'1rem',
+                  background:'none', border:'none', color:'#9CA3AF', fontSize:'.8rem', fontWeight:600,
+                  cursor:'pointer', padding:0,
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                  {lang === 'en' ? 'Back' : 'Назад'}
+                </button>
+              )}
               <div style={{ display:'flex', alignItems:'center', gap:'.85rem', marginBottom:'1.25rem' }}>
                 <IconBadge name={cur.icon} />
                 <span style={{ fontSize:'.85rem', color:'#9CA3AF', letterSpacing:'.03em' }}>
@@ -478,6 +501,14 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
 
           ) : (
             <StepPane id={step}>
+              <button onClick={goBack} style={{
+                display:'flex', alignItems:'center', gap:'.3rem', marginBottom:'1rem',
+                background:'none', border:'none', color:'#9CA3AF', fontSize:'.8rem', fontWeight:600,
+                cursor:'pointer', padding:0,
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                {lang === 'en' ? 'Back' : 'Назад'}
+              </button>
               <div style={{ display:'flex', alignItems:'center', gap:'.85rem', marginBottom:'1.25rem' }}>
                 <div style={{
                   width:44, height:44, borderRadius:'12px', background:'rgba(249,115,22,.1)',
@@ -521,6 +552,18 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
                 </label>
                 <input className={fieldCls} style={field} placeholder="your@email.com" type="email" required
                   value={contact.email} onChange={e => setContact(p => ({ ...p, email: e.target.value }))}
+                  onFocus={e => { e.target.style.borderColor = OR; e.target.style.boxShadow = `0 0 0 3px rgba(249,115,22,.12)` }}
+                  onBlur={e => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = 'none' }} />
+              </div>
+              <div style={{ marginBottom:'1.25rem' }}>
+                <label style={{ display:'block', fontSize:'.75rem', fontWeight:600, color:'#9CA3AF', letterSpacing:'.07em', marginBottom:'.4rem' }}>
+                  {lang === 'en' ? 'ACADEMIC BACKGROUND / NOTES (OPTIONAL)' : 'ОБРАЗОВАНИЕ / ЗАМЕТКИ (НЕОБЯЗАТЕЛЬНО)'}
+                </label>
+                <textarea className={fieldCls} style={{ ...field, minHeight:'88px', resize:'vertical', fontFamily:'inherit', lineHeight:1.5 }}
+                  placeholder={lang === 'en'
+                    ? 'e.g. current school/university, grades, anything else worth knowing'
+                    : 'напр. текущая школа/университет, оценки, что-то ещё важное'}
+                  value={contact.notes} onChange={e => setContact(p => ({ ...p, notes: e.target.value }))}
                   onFocus={e => { e.target.style.borderColor = OR; e.target.style.boxShadow = `0 0 0 3px rgba(249,115,22,.12)` }}
                   onBlur={e => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = 'none' }} />
               </div>
