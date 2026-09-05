@@ -167,12 +167,19 @@ const STEPS = [
     other: 'Другое', otherPlaceholder: 'Ваш бюджет', otherPlaceholderEn: 'Your budget',
   },
   {
-    key: 'concern', icon: 'Shield',
-    question: 'Что беспокоит вас больше всего?', questionEn: 'What is your biggest concern right now?',
-    sub: 'Главный вопрос', subEn: 'Main concern',
+    // Replaced "что беспокоит вас больше всего". That question scored nothing and
+    // separated nobody — almost every student picked visa or cost.
+    //
+    // This one does the work that the budget question cannot. Budget is free to
+    // claim: anyone can click "$30,000+". Who is actually paying is the same
+    // information with the wishful thinking taken out, and it is still a single
+    // easy click, so it costs no completions.
+    key: 'funding', icon: 'Shield',
+    question: 'Кто будет оплачивать обучение?', questionEn: 'Who will be paying for your studies?',
+    sub: 'Источник финансирования', subEn: 'Funding source',
     cols: 2,
-    options:   ['Виза и документы','Стоимость / стипендии','Выбор университета','Подготовка к IELTS','Языковой барьер','Другое'],
-    optionsEn: ['Visa & documents','Cost / scholarships','Choosing a university','IELTS preparation','Language barrier','Other'],
+    options:   ['Родители / семья','Собственные сбережения','Нужен кредит','Только стипендия или грант','Ещё не решили','Другое'],
+    optionsEn: ['Parents / family','My own savings','Will need a loan','Scholarship or grant only','Not decided yet','Other'],
     other: 'Другое', otherPlaceholder: 'Опишите подробнее...', otherPlaceholderEn: 'Tell us more...',
   },
 ]
@@ -266,9 +273,21 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
   const [error, setError]           = useState('')
   const otherRef = useRef(null)
 
-  const isContact = step === STEPS.length
-  const pct       = Math.round((step / (STEPS.length + 1)) * 100)
-  const cur       = !isContact ? STEPS[step] : null
+  // Contact details are asked third, not last.
+  //
+  // The quiz used to ask all eight questions and only then ask who you were,
+  // and it only wrote to the database on the final submit — so a student who
+  // answered seven questions and closed the tab left nothing behind at all.
+  // Two easy questions first still earn the commitment that makes people give
+  // a number, and everything after that point is now a bonus on a lead that
+  // has already been saved.
+  const CONTACT_AT = 2
+  const TOTAL      = STEPS.length + 2 // questions + contact + the closing screen
+
+  const isContact = step === CONTACT_AT
+  const isFinal   = step === TOTAL - 1
+  const cur       = isContact || isFinal ? null : STEPS[step < CONTACT_AT ? step : step - 1]
+  const pct       = Math.round((step / (TOTAL - 1)) * 100)
   const selVal    = cur ? answers[cur.key] : null
   // A custom ("Other") answer typed on a previous visit to this step won't match any
   // option label - detect that case so navigating back re-shows it instead of looking unanswered.
@@ -291,6 +310,41 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
     const isOther = !!(cur.other && opt === cur.other)
     setAnswers(p => ({ ...p, [cur.key]: isOther ? '' : opt }))
     if (!isOther) setTimeout(() => setStep(s => s + 1), 220)
+  }
+
+  // Saves the lead the moment we know who they are, before the rest of the
+  // questions. Stored as a partial: the qualifier never picks those up, so
+  // nothing is scored, emailed or written to the Sheet until the quiz is
+  // actually finished.
+  //
+  // A failure here is deliberately not shown and does not block. The student
+  // still has the full submit at the end, and stopping them because a
+  // background save failed would cost the very lead this is meant to protect.
+  async function saveContactAndContinue() {
+    if (!contact.name.trim() || !contact.whatsapp.trim() || !contact.email.trim()) {
+      setError(lang === 'en' ? 'Please enter your name, WhatsApp number, and email' : 'Пожалуйста, заполните имя, WhatsApp и email')
+      return
+    }
+    setError('')
+    setStep(s => s + 1)
+
+    try {
+      await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: CID,
+          partial: true,
+          name: contact.name.trim(),
+          whatsapp: contact.whatsapp.trim(),
+          email: contact.email.trim(),
+          source: 'quiz',
+          answers,
+        }),
+      })
+    } catch {
+      // Intentionally silent — see above.
+    }
   }
 
   function confirmOther() {
@@ -409,8 +463,10 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
               {done
                 ? (lang === 'en' ? 'Done' : 'Готово')
                 : isContact
-                  ? (lang === 'en' ? 'Last step' : 'Последний шаг')
-                  : (lang === 'en' ? `Step ${step + 1} of ${STEPS.length}` : `Шаг ${step + 1} из ${STEPS.length}`)
+                  ? (lang === 'en' ? 'Your details' : 'Ваши данные')
+                  : isFinal
+                    ? (lang === 'en' ? 'Last step' : 'Последний шаг')
+                    : (lang === 'en' ? `Step ${step + 1} of ${TOTAL}` : `Шаг ${step + 1} из ${TOTAL}`)
               }
             </span>
             <span style={{ color: pct > 75 ? OR : '#9CA3AF', fontWeight: pct > 75 ? 600 : 400 }}>{pct}%</span>
@@ -483,7 +539,7 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
               </div>
             </div>
 
-          ) : !isContact ? (
+          ) : (!isContact && !isFinal) ? (
             <StepPane id={step}>
               {step > 0 && (
                 <button onClick={goBack} style={{
@@ -535,7 +591,7 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
               )}
             </StepPane>
 
-          ) : (
+          ) : isContact ? (
             <StepPane id={step}>
               <button onClick={goBack} style={{
                 display:'flex', alignItems:'center', gap:'.3rem', marginBottom:'1rem',
@@ -590,6 +646,33 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
                   value={contact.email} onChange={e => setContact(p => ({ ...p, email: e.target.value }))}
                   onFocus={e => { e.target.style.borderColor = OR; e.target.style.boxShadow = `0 0 0 3px rgba(249,115,22,.12)` }}
                   onBlur={e => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = 'none' }} />
+              </div>
+              {error && <div style={{ color:'#EF4444', fontSize:'.78rem', marginBottom:'.75rem' }}>{error}</div>}
+              <Btn onClick={saveContactAndContinue}>
+                {lang === 'en' ? 'Continue' : 'Далее'}
+              </Btn>
+              <div style={{ textAlign:'center', marginTop:'.75rem', fontSize:'.7rem', color:'#C0C7D0' }}>
+                {lang === 'en' ? 'Your data is protected · No spam' : 'Ваши данные защищены · Без спама'}
+              </div>
+            </StepPane>
+
+          ) : (
+            <StepPane id={step}>
+              <button onClick={goBack} style={{
+                display:'flex', alignItems:'center', gap:'.3rem', marginBottom:'1rem',
+                background:'none', border:'none', color:'#9CA3AF', fontSize:'.8rem', fontWeight:600,
+                cursor:'pointer', padding:0,
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                {lang === 'en' ? 'Back' : 'Назад'}
+              </button>
+              <div className="uq-contact-q" style={{ fontSize:'1.5rem', fontWeight:700, color:'#111', marginBottom:'.5rem' }}>
+                {lang === 'en' ? 'Anything else we should know?' : 'Что ещё нам стоит знать?'}
+              </div>
+              <div style={{ fontSize:'.95rem', color:'#6B7280', marginBottom:'1.75rem', lineHeight:1.65 }}>
+                {lang === 'en'
+                  ? 'Optional — but the more you tell us, the better we can prepare before we call.'
+                  : 'Необязательно — но чем больше вы расскажете, тем лучше мы подготовимся к разговору.'}
               </div>
               <div style={{ marginBottom:'1.25rem' }}>
                 <label style={{ display:'block', fontSize:'.75rem', fontWeight:600, color:'#9CA3AF', letterSpacing:'.07em', marginBottom:'.4rem' }}>
