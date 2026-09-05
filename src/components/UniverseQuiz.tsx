@@ -66,6 +66,42 @@ const Icon = {
   Wallet: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>,
 }
 
+// ─── INTAKE DATES ─────────────────────────────────────────────────────────────
+// Universities run two intakes a year: September and January. These options used
+// to be hardcoded, which meant they silently went stale — by September 2026 the
+// first option was "Сентябрь 2026", an intake that had already begun, and it was
+// also the highest-scoring answer in the qualifier. Anyone picking it was flagged
+// as the hottest kind of lead for choosing a month that had already passed.
+//
+// Generated from the current date instead, so the list stays correct on its own.
+// LEAD_MONTHS drops intakes that are too close to realistically apply for —
+// three months out is already tight once visas and documents are counted.
+//
+// Everything is computed in UTC so the server render and the browser always
+// agree, whatever timezone the student is in.
+
+const RU_MONTH: Record<number, string> = { 1: 'Январь', 9: 'Сентябрь' }
+const EN_MONTH: Record<number, string> = { 1: 'January', 9: 'September' }
+const LEAD_MONTHS = 3
+const INTAKE_COUNT = 4
+
+function nextIntakes(from: Date = new Date()): { month: number; year: number }[] {
+  const earliest = Date.UTC(from.getUTCFullYear(), from.getUTCMonth() + LEAD_MONTHS, 1)
+  const out: { month: number; year: number }[] = []
+  for (let year = new Date(earliest).getUTCFullYear(); out.length < INTAKE_COUNT; year++) {
+    for (const month of [1, 9]) {
+      if (Date.UTC(year, month - 1, 1) < earliest) continue
+      out.push({ month, year })
+      if (out.length === INTAKE_COUNT) break
+    }
+  }
+  return out
+}
+
+const INTAKES = nextIntakes()
+const INTAKE_RU = INTAKES.map(i => `${RU_MONTH[i.month]} ${i.year}`)
+const INTAKE_EN = INTAKES.map(i => `${EN_MONTH[i.month]} ${i.year}`)
+
 const STEPS = [
   {
     key: 'country_from', icon: 'Globe',
@@ -117,8 +153,8 @@ const STEPS = [
     question: 'Когда планируете начать учёбу?', questionEn: 'When do you plan to start studying?',
     sub: 'Дата начала', subEn: 'Planned intake',
     cols: 1,
-    options:   ['Сентябрь 2026','Январь 2027','Сентябрь 2027','Январь 2028','Позже или не уверен','Другое'],
-    optionsEn: ['September 2026','January 2027','September 2027','January 2028','Later / not sure yet','Other'],
+    options:   [...INTAKE_RU, 'Позже или не уверен', 'Другое'],
+    optionsEn: [...INTAKE_EN, 'Later / not sure yet', 'Other'],
     other: 'Другое', otherPlaceholder: 'Когда примерно?', otherPlaceholderEn: 'Roughly when?',
   },
   {
