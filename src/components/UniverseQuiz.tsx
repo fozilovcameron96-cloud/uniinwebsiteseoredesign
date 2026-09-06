@@ -281,12 +281,27 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
   // Two easy questions first still earn the commitment that makes people give
   // a number, and everything after that point is now a bonus on a lead that
   // has already been saved.
-  const CONTACT_AT = 2
-  const TOTAL      = STEPS.length + 2 // questions + contact + the closing screen
+  // Name on its own opens the quiz, then two easy questions, then the number.
+  //
+  // Contact used to be one three-field block dropped in at step three, which
+  // read as a form appearing out of nowhere in the middle of a conversation.
+  // Asking the name by itself is the lowest-friction question in the whole
+  // quiz and sounds like a person rather than a form.
+  //
+  // The number cannot move to the end with it. A name alone is not
+  // contactable, and saving a contactable lead early is the entire reason the
+  // quiz stopped asking for details last — someone who leaves at question six
+  // has to still be someone dad can message.
+  const NAME_AT    = 0
+  const CONTACT_AT = 3
+  const TOTAL      = STEPS.length + 3 // name + questions + contact + closing screen
 
+  const isName    = step === NAME_AT
   const isContact = step === CONTACT_AT
   const isFinal   = step === TOTAL - 1
-  const cur       = isContact || isFinal ? null : STEPS[step < CONTACT_AT ? step : step - 1]
+  const cur       = (isName || isContact || isFinal)
+    ? null
+    : STEPS[step < CONTACT_AT ? step - 1 : step - 2]
   const pct       = Math.round((step / (TOTAL - 1)) * 100)
   const selVal    = cur ? answers[cur.key] : null
   // A custom ("Other") answer typed on a previous visit to this step won't match any
@@ -320,9 +335,18 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
   // A failure here is deliberately not shown and does not block. The student
   // still has the full submit at the end, and stopping them because a
   // background save failed would cost the very lead this is meant to protect.
+  function confirmName() {
+    if (!contact.name.trim()) {
+      setError(lang === 'en' ? 'Please enter your name' : 'Пожалуйста, введите ваше имя')
+      return
+    }
+    setError('')
+    setStep(s => s + 1)
+  }
+
   async function saveContactAndContinue() {
-    if (!contact.name.trim() || !contact.whatsapp.trim() || !contact.email.trim()) {
-      setError(lang === 'en' ? 'Please enter your name, WhatsApp number, and email' : 'Пожалуйста, заполните имя, WhatsApp и email')
+    if (!contact.whatsapp.trim() || !contact.email.trim()) {
+      setError(lang === 'en' ? 'Please enter your WhatsApp number and email' : 'Пожалуйста, укажите WhatsApp и email')
       return
     }
     setError('')
@@ -462,11 +486,13 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
             <span>
               {done
                 ? (lang === 'en' ? 'Done' : 'Готово')
+                : isName
+                  ? (lang === 'en' ? 'Getting started' : 'Начало')
                 : isContact
-                  ? (lang === 'en' ? 'Your details' : 'Ваши данные')
+                  ? (lang === 'en' ? 'Your contact details' : 'Ваши контакты')
                   : isFinal
                     ? (lang === 'en' ? 'Last step' : 'Последний шаг')
-                    : (lang === 'en' ? `Step ${step + 1} of ${TOTAL}` : `Шаг ${step + 1} из ${TOTAL}`)
+                    : (lang === 'en' ? `Step ${step} of ${TOTAL - 1}` : `Шаг ${step} из ${TOTAL - 1}`)
               }
             </span>
             <span style={{ color: pct > 75 ? OR : '#9CA3AF', fontWeight: pct > 75 ? 600 : 400 }}>{pct}%</span>
@@ -538,6 +564,41 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
                 Uni In — {lang === 'en' ? 'your path to international education' : 'ваш путь к образованию за рубежом'}
               </div>
             </div>
+
+          ) : isName ? (
+            <StepPane id={step}>
+              <div style={{ display:'flex', alignItems:'center', gap:'.85rem', marginBottom:'1.25rem' }}>
+                <div style={{
+                  width:44, height:44, borderRadius:'12px', background:'rgba(249,115,22,.1)',
+                  display:'flex', alignItems:'center', justifyContent:'center', color:OR,
+                }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </div>
+              </div>
+              <div className="uq-contact-q" style={{ fontSize:'1.5rem', fontWeight:700, color:'#111', lineHeight:1.35, marginBottom:'.5rem' }}>
+                {lang === 'en' ? "First — what's your name?" : 'Для начала — как вас зовут?'}
+              </div>
+              <div style={{ fontSize:'.95rem', color:'#6B7280', marginBottom:'1.75rem', lineHeight:1.65 }}>
+                {lang === 'en'
+                  ? 'Takes about a minute. Eight quick questions and a consultant reviews your profile.'
+                  : 'Займёт около минуты. Восемь коротких вопросов — и консультант изучит ваш профиль.'}
+              </div>
+              <div style={{ marginBottom:'.65rem' }}>
+                <label style={{ display:'block', fontSize:'.75rem', fontWeight:600, color:'#9CA3AF', letterSpacing:'.07em', marginBottom:'.4rem' }}>
+                  {lang === 'en' ? 'NAME' : 'ИМЯ'}
+                </label>
+                <input className={fieldCls} style={field} placeholder={lang === 'en' ? 'Your name' : 'Ваше имя'}
+                  value={contact.name} onChange={e => setContact(p => ({ ...p, name: e.target.value }))}
+                  onFocus={e => { e.target.style.borderColor = OR; e.target.style.boxShadow = `0 0 0 3px rgba(249,115,22,.12)` }}
+                  onBlur={e => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = 'none' }} />
+              </div>
+              {error && <div style={{ color:'#EF4444', fontSize:'.78rem', marginBottom:'.75rem' }}>{error}</div>}
+              <Btn onClick={confirmName}>
+                {lang === 'en' ? 'Start' : 'Начать'}
+              </Btn>
+            </StepPane>
 
           ) : (!isContact && !isFinal) ? (
             <StepPane id={step}>
@@ -615,21 +676,12 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
                 </span>
               </div>
               <div className="uq-contact-q" style={{ fontSize:'1.5rem', fontWeight:700, color:'#111', marginBottom:'.5rem' }}>
-                {lang === 'en' ? 'How can we reach you?' : 'Как с вами связаться?'}
+                {lang === 'en' ? 'Where should we reach you?' : 'Куда вам написать?'}
               </div>
               <div style={{ fontSize:'.95rem', color:'#6B7280', marginBottom:'1.75rem', lineHeight:1.65 }}>
                 {lang === 'en'
                   ? 'Our consultant will message you on WhatsApp — no cold calls, no spam.'
                   : 'Консультант напишет вам в WhatsApp — без звонков, без спама.'}
-              </div>
-              <div style={{ marginBottom:'.65rem' }}>
-                <label style={{ display:'block', fontSize:'.75rem', fontWeight:600, color:'#9CA3AF', letterSpacing:'.07em', marginBottom:'.4rem' }}>
-                  {lang === 'en' ? 'NAME' : 'ИМЯ'}
-                </label>
-                <input className={fieldCls} style={field} placeholder={lang === 'en' ? 'Your name' : 'Ваше имя'}
-                  value={contact.name} onChange={e => setContact(p => ({ ...p, name: e.target.value }))}
-                  onFocus={e => { e.target.style.borderColor = OR; e.target.style.boxShadow = `0 0 0 3px rgba(249,115,22,.12)` }}
-                  onBlur={e => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = 'none' }} />
               </div>
               <div style={{ marginBottom:'.65rem' }}>
                 <label style={{ display:'block', fontSize:'.75rem', fontWeight:600, color:'#9CA3AF', letterSpacing:'.07em', marginBottom:'.4rem' }}>WHATSAPP</label>
