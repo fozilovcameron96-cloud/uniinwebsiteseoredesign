@@ -1,5 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 
+// The site's own logo, same file the Navbar, Footer and favicon use.
+// This was loading from imgbox.com — a third-party image host, and a JPEG, so
+// it had no transparency and sat in a solid rectangle on the white header.
+// It also meant the logo on a client-facing quiz depended on someone else's
+// server staying up.
+const LOGO = '/logo.png';
+
 const API = 'https://silk-leads-dashboard.vercel.app/api/leads/submit'
 const CID = '00000000-0000-0000-0000-000000000002'
 const OR  = '#F97316'
@@ -441,8 +448,8 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
         {/* Header */}
         <div className="uq-header" style={{ background:'#fff', flexShrink:0, padding:headerPad, borderBottom:'1px solid #F3F4F6' }}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'.7rem' }}>
-            <img src="https://images2.imgbox.com/26/e7/4aGfmDdL_o.jpg" alt="Uni In"
-              style={{ height:36, display:'block', borderRadius:6 }} />
+            <img src={LOGO} alt="Uni In"
+              style={{ height:36, display:'block' }} />
             <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
               {['ru','en'].map(l => (
                 <button key={l} onClick={() => setLang(l)} style={{
