@@ -5,12 +5,6 @@ export interface Translation {
   cta: string; note: string;
   hb1: string; hb2: string; hb3: string;
   s1: string; s2: string; s3: string; s4: string;
-  car1t: string; car1d: string;
-  car2t: string; car2d: string;
-  car3t: string; car3d: string;
-  car4t: string; car4d: string;
-  car5t: string; car5d: string;
-  car6t: string; car6d: string;
   destLbl: string;
   objLbl: string; objTitle: string;
   obj1f: string; obj1a: string; obj1d: string;
@@ -90,12 +84,6 @@ export const L: Record<Lang, Translation> = {
     // TODO: confirm the real figures with the agency before launch. "Helped" is
     // deliberately weaker than "placed" - it is defensible without enrolment records.
     s1: "Students helped", s2: "Partner universities", s3: "Countries", s4: "For students",
-    car1t: "Universe In", car1d: "UK-registered study abroad consultancy. Free for students, always.",
-    car2t: "Tashkent → Manchester", car2d: "Real offer letter, September 2026 intake.",
-    car3t: "Visa approved", car3d: "Student visa granted on the first application.",
-    car4t: "Free for students", car4d: "The university pays us. You never pay us anything.",
-    car5t: "Accredited & recognised", car5d: "ICEF accredited · British Council · UK Company No. 16049326",
-    car6t: "Real offer letters", car6d: "Students placed from Tashkent, Samarkand and Dushanbe.",
     destLbl: "Study in 10 countries",
     objLbl: "We hear you", objTitle: "We answer your doubts",
     obj1f: '"My English isn\'t good enough"', obj1a: "IELTS 5.0 is already enough", obj1d: "If your score is lower, or you have no certificate yet, you start with a language or foundation course. Tell us your level and we'll find the right programme.",
@@ -179,12 +167,6 @@ export const L: Record<Lang, Translation> = {
     hb2: "Помогаем с документами, визой и жильём",
     hb3: "100 университетов в 10 странах",
     s1: "Студентов обратилось", s2: "Университетов-партнёров", s3: "Стран", s4: "Для студентов",
-    car1t: "Universe In", car1d: "Британская образовательная консультация. Бесплатно для студентов.",
-    car2t: "Ташкент → Манчестер", car2d: "Реальный оффер, набор на сентябрь 2026.",
-    car3t: "Виза одобрена", car3d: "Студенческая виза с первой подачи.",
-    car4t: "Бесплатно для студентов", car4d: "Нам платит университет. Вы не платите ничего.",
-    car5t: "Аккредитация и признание", car5d: "ICEF · British Council · Компания № 16049326",
-    car6t: "Реальные офферы", car6d: "Студенты из Ташкента, Самарканда и Душанбе.",
     destLbl: "Учитесь в 10 странах",
     objLbl: "Мы слышим вас", objTitle: "Мы отвечаем на ваши сомнения",
     obj1f: '"Мой английский недостаточно хорош"', obj1a: "IELTS 5.0 — уже достаточно", obj1d: "Если балл ниже или сертификата пока нет — начнёте с языкового курса или foundation. Скажите свой уровень, и мы подберём программу.",
@@ -268,12 +250,6 @@ export const L: Record<Lang, Translation> = {
     hb2: "Hujjatlar, viza va turar joyda yordam beramiz",
     hb3: "10 mamlakatda 100 universitet",
     s1: "Talaba murojaat qildi", s2: "Universitet hamkorlar", s3: "Davlatlar", s4: "Talabalar uchun",
-    car1t: "Universe In", car1d: "Britaniyada ro'yxatdan o'tgan ta'lim konsaltingi. Talabalar uchun bepul.",
-    car2t: "Toshkent → Manchester", car2d: "Haqiqiy taklifnoma, 2026-yil sentabr qabuli.",
-    car3t: "Viza tasdiqlandi", car3d: "Talaba vizasi birinchi topshirishda olindi.",
-    car4t: "Talabalar uchun bepul", car4d: "Bizga universitet to'laydi. Siz hech narsa to'lamaysiz.",
-    car5t: "Akkreditatsiya va tan olish", car5d: "ICEF · British Council · Kompaniya № 16049326",
-    car6t: "Haqiqiy taklifnomalar", car6d: "Toshkent, Samarqand va Dushanbedan talabalar.",
     destLbl: "10 mamlakatda o'qing",
     objLbl: "Biz sizni eshitamiz", objTitle: "Shubhalaringizga javob beramiz",
     obj1f: '"Mening inglizim yetarli emas"', obj1a: "IELTS 5.0 — allaqachon yetarli", obj1d: "Ball pastroq bo'lsa yoki sertifikat bo'lmasa — til kursi yoki foundation dan boshlaysiz. Darajangizni ayting, biz dastur topamiz.",
