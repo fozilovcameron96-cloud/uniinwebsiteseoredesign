@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import UrgencyBar from './UrgencyBar';
-import Cursor from './Cursor';
 import type { Destination } from '../data/destinations';
 
 interface DestinationPageProps {
@@ -38,7 +37,6 @@ export default function DestinationPage({ destination: d }: DestinationPageProps
 
   return (
     <>
-      <Cursor />
       <UrgencyBar />
       <Navbar />
 

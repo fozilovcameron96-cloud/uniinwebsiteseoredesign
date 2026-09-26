@@ -1,87 +1,80 @@
-import { useLang } from "../contexts/LangContext";
+import { useLang } from '../contexts/LangContext';
 
-export default function Testimonials() {
+// Was Testimonials.tsx, which was a misnomer: it rendered only these
+// accreditation cards and never mounted the tm1q/tm2q/tm3q strings, so the site
+// shipped with no student proof at all. Renamed so the gap can't hide again -
+// real proof now lives in ProofWall.tsx.
+//
+// All copy was previously hardcoded in English, which the Russian-speaking
+// primary audience read untranslated. It now goes through translations.ts.
+export default function Accreditation() {
   const { t } = useLang();
+
+  const cards = [
+    {
+      logo: '/logos/british-council.png',
+      alt: 'British Council',
+      pill: t.acc1pill, name: t.acc1name, role: t.acc1role, desc: t.acc1desc,
+      tags: [t.acc1tag1, t.acc1tag2, t.acc1tag3],
+    },
+    {
+      logo: '/logos/icef.png',
+      alt: 'ICEF',
+      pill: t.acc2pill, name: t.acc2name, role: t.acc2role, desc: t.acc2desc,
+      tags: [t.acc2tag1, t.acc2tag2, t.acc2tag3],
+    },
+  ];
 
   return (
     <section className="tm-section tm-section-dark">
       <div className="tm-inner">
-
         <div className="accred-section reveal">
-          <div className="section-label accred-label-dark" style={{ justifyContent: "center", marginBottom: 10 }}>
+          <div className="section-label accred-label-dark" style={{ justifyContent: 'center', marginBottom: 10 }}>
             <div className="dot" />
-            <span>RECOGNISED & ACCREDITED BY</span>
+            <span>{t.accLbl}</span>
           </div>
-          <h2 className="section-h2 accred-h2-dark" style={{ textAlign: "center", marginBottom: 8 }}>
-            Officially recognised.<br />Globally trusted.
-          </h2>
-          <p className="accred-intro accred-intro-dark">
-            Universe In holds accreditations from two of the most respected international education bodies in the world.
-          </p>
+          <h2
+            className="section-h2 accred-h2-dark"
+            style={{ textAlign: 'center', marginBottom: 8 }}
+            dangerouslySetInnerHTML={{ __html: t.accTitle }}
+          />
+          <p className="accred-intro accred-intro-dark">{t.accSub}</p>
 
           <div className="accred-cards">
-
-            <div className="accred-card-p">
-              <div className="accred-logo-wrap">
-                <img
-                  src="/logos/british-council.png"
-                  alt="British Council"
-                  className="accred-img"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                />
+            {cards.map((c, i) => (
+              <div className="accred-card-p" key={i}>
+                <div className="accred-logo-wrap">
+                  <img
+                    src={c.logo}
+                    alt={c.alt}
+                    className="accred-img"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                </div>
+                <div className="accred-pill">
+                  <span className="accred-dot" />
+                  {c.pill}
+                </div>
+                <div className="accred-name-p">{c.name}</div>
+                <div className="accred-role-p">{c.role}</div>
+                <p className="accred-desc-p">{c.desc}</p>
+                <div className="accred-tags">
+                  {c.tags.map((tag, j) => (
+                    <span className="accred-tag" key={j}>{tag}</span>
+                  ))}
+                </div>
               </div>
-              <div className="accred-pill">
-                <span className="accred-dot" />
-                Verified Partner
-              </div>
-              <div className="accred-name-p">British Council</div>
-              <div className="accred-role-p">UK Government Cultural Relations Body</div>
-              <p className="accred-desc-p">
-                The British Council is the UK's international organisation for cultural relations and educational opportunities, operating in 190+ countries. Their recognition signals genuine quality to universities worldwide.
-              </p>
-              <div className="accred-tags">
-                <span className="accred-tag">Est. 1934</span>
-                <span className="accred-tag">190+ Countries</span>
-                <span className="accred-tag">UK Government Body</span>
-              </div>
-            </div>
-
-            <div className="accred-card-p">
-              <div className="accred-logo-wrap">
-                <img
-                  src="/logos/icef.png"
-                  alt="ICEF"
-                  className="accred-img"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                />
-              </div>
-              <div className="accred-pill">
-                <span className="accred-dot" />
-                Accredited Agency
-              </div>
-              <div className="accred-name-p">ICEF Accredited</div>
-              <div className="accred-role-p">International Education Standard</div>
-              <p className="accred-desc-p">
-                ICEF accreditation is the gold standard for international student recruitment agencies. Only agencies meeting strict ethical and professional benchmarks receive this recognition.
-              </p>
-              <div className="accred-tags">
-                <span className="accred-tag">Gold Standard</span>
-                <span className="accred-tag">Ethical Agency</span>
-                <span className="accred-tag">Verified Quality</span>
-              </div>
-            </div>
-
+            ))}
           </div>
 
           <div className="accred-trust-bar accred-trust-bar-dark">
-            <div className="accred-trust-item"><span className="accred-check">✓</span> Free for students — always</div>
+            <div className="accred-trust-item"><span className="accred-check">✓</span> {t.accBar1}</div>
             <div className="accred-trust-sep" />
-            <div className="accred-trust-item"><span className="accred-check">✓</span> UK-registered company</div>
+            <div className="accred-trust-item"><span className="accred-check">✓</span> {t.accBar2}</div>
             <div className="accred-trust-sep" />
-            <div className="accred-trust-item"><span className="accred-check">✓</span> 1,000+ students placed</div>
+            <div className="accred-trust-item"><span className="accred-check">✓</span> {t.accBar3}</div>
           </div>
         </div>
-
       </div>
 
       <style>{`
@@ -92,9 +85,7 @@ export default function Testimonials() {
         .accred-label-dark span { color: var(--o); }
         .accred-h2-dark { color: #fff; }
         .accred-intro-dark { color: rgba(255,255,255,0.55); }
-        .accred-trust-bar-dark {
-          border-top-color: rgba(255,255,255,0.12);
-        }
+        .accred-trust-bar-dark { border-top-color: rgba(255,255,255,0.12); }
         .accred-trust-bar-dark .accred-trust-item { color: rgba(255,255,255,0.7); }
         .accred-trust-bar-dark .accred-trust-sep { background: rgba(255,255,255,0.15); }
         .accred-intro {

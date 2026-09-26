@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { LangProvider } from './contexts/LangContext';
 import type { Lang } from './data/translations';
-import Cursor from './components/Cursor';
 import UrgencyBar from './components/UrgencyBar';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Destinations from './components/Destinations';
 import ObjectionCrusher from './components/ObjectionCrusher';
 import HowItWorks from './components/HowItWorks';
-import Testimonials from './components/Testimonials';
+import ProofWall from './components/ProofWall';
+import Accreditation from './components/Accreditation';
+import Comparison from './components/Comparison';
+import RiskReversal from './components/RiskReversal';
 import FAQ from './components/FAQ';
 import Partners from './components/Partners';
 import FinalCTA from './components/FinalCTA';
@@ -60,16 +62,28 @@ const [quizOpen, setQuizOpen] = useState(initialQuizOpen);
 
   return (
     <>
-      <Cursor />
       <UrgencyBar />
       <Navbar />
       <Hero onOpenChat={openQuiz} />
-      <Destinations />
+      {/* Proof immediately after the hero. Destinations used to sit here - ten
+          links pointing off the page at exactly the moment the only job is to
+          earn the next scroll - so it has moved down near the footer where it
+          still carries its SEO value to the destination pages. */}
+      <ProofWall />
       <Partners />
       <ObjectionCrusher />
       <HowItWorks />
-      <Testimonials />
-      <FAQ />
+      {/* Straight after "how it works", which is where someone starts wondering
+          whether to just do this themselves. It used to sit ~7700px down a
+          12900px page, so far in that it read as an afterthought. */}
+      <Comparison />
+      {/* The three real objections (cost, English level, visa refusal) answered
+          directly above a CTA. The informational rest are further down. */}
+      <FAQ pick={[0, 1, 5]} onOpenChat={openQuiz} />
+      <Accreditation />
+      <Destinations />
+      <RiskReversal />
+      <FAQ pick={[2, 3, 4]} secondary />
       <FinalCTA onOpenChat={openQuiz} />
       <Footer />
       <FloatCTA onOpenChat={openQuiz} />
@@ -194,8 +208,7 @@ export default function App() {
 
   return (
     <LangProvider initialLang={page.lang} onLangChange={navigateLang}>
-      {page.type === 'apply' ? <><Cursor /><UniverseQuiz variant="page" /></>
-       : <LandingPage />}
+      {page.type === 'apply' ? <UniverseQuiz variant="page" /> : <LandingPage />}
     </LangProvider>
   );
 }

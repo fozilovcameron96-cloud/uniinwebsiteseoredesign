@@ -280,27 +280,13 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
   const [error, setError]           = useState('')
   const otherRef = useRef(null)
 
-  // Contact details are asked third, not last.
-  //
-  // The quiz used to ask all eight questions and only then ask who you were,
-  // and it only wrote to the database on the final submit — so a student who
-  // answered seven questions and closed the tab left nothing behind at all.
-  // Two easy questions first still earn the commitment that makes people give
-  // a number, and everything after that point is now a bonus on a lead that
-  // has already been saved.
-  // Name on its own opens the quiz, then two easy questions, then the number.
-  //
-  // Contact used to be one three-field block dropped in at step three, which
-  // read as a form appearing out of nowhere in the middle of a conversation.
-  // Asking the name by itself is the lowest-friction question in the whole
-  // quiz and sounds like a person rather than a form.
-  //
-  // The number cannot move to the end with it. A name alone is not
-  // contactable, and saving a contactable lead early is the entire reason the
-  // quiz stopped asking for details last — someone who leaves at question six
-  // has to still be someone dad can message.
+  // Name opens the quiz, then all eight questions, then contact details last.
+  // One save, on submit. Contact used to be asked third so an abandoned quiz
+  // still left a contactable row, but that row was never scored, emailed or
+  // written to the Sheet, so nobody ever saw it - and a half-answered profile
+  // is not a lead worth calling anyway.
   const NAME_AT    = 0
-  const CONTACT_AT = 3
+  const CONTACT_AT = STEPS.length + 1
   const TOTAL      = STEPS.length + 3 // name + questions + contact + closing screen
 
   const isName    = step === NAME_AT
@@ -309,6 +295,10 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
   const cur       = (isName || isContact || isFinal)
     ? null
     : STEPS[step < CONTACT_AT ? step - 1 : step - 2]
+  // Counts questions, not internal steps. The name and contact screens have
+  // their own labels, so numbering them made the counter read "Step 1 of 10"
+  // for a quiz that only ever asks eight questions.
+  const qIndex    = step < CONTACT_AT ? step : step - 1
   const pct       = Math.round((step / (TOTAL - 1)) * 100)
   const selVal    = cur ? answers[cur.key] : null
   // A custom ("Other") answer typed on a previous visit to this step won't match any
@@ -334,14 +324,6 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
     if (!isOther) setTimeout(() => setStep(s => s + 1), 220)
   }
 
-  // Saves the lead the moment we know who they are, before the rest of the
-  // questions. Stored as a partial: the qualifier never picks those up, so
-  // nothing is scored, emailed or written to the Sheet until the quiz is
-  // actually finished.
-  //
-  // A failure here is deliberately not shown and does not block. The student
-  // still has the full submit at the end, and stopping them because a
-  // background save failed would cost the very lead this is meant to protect.
   function confirmName() {
     if (!contact.name.trim()) {
       setError(lang === 'en' ? 'Please enter your name' : 'Пожалуйста, введите ваше имя')
@@ -351,31 +333,13 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
     setStep(s => s + 1)
   }
 
-  async function saveContactAndContinue() {
+  function saveContactAndContinue() {
     if (!contact.whatsapp.trim() || !contact.email.trim()) {
       setError(lang === 'en' ? 'Please enter your WhatsApp number and email' : 'Пожалуйста, укажите WhatsApp и email')
       return
     }
     setError('')
     setStep(s => s + 1)
-
-    try {
-      await fetch(API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          client_id: CID,
-          partial: true,
-          name: contact.name.trim(),
-          whatsapp: contact.whatsapp.trim(),
-          email: contact.email.trim(),
-          source: 'quiz',
-          answers,
-        }),
-      })
-    } catch {
-      // Intentionally silent — see above.
-    }
   }
 
   function confirmOther() {
@@ -499,7 +463,7 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
                   ? (lang === 'en' ? 'Your contact details' : 'Ваши контакты')
                   : isFinal
                     ? (lang === 'en' ? 'Last step' : 'Последний шаг')
-                    : (lang === 'en' ? `Step ${step} of ${TOTAL - 1}` : `Шаг ${step} из ${TOTAL - 1}`)
+                    : (lang === 'en' ? `Question ${qIndex} of ${STEPS.length}` : `Вопрос ${qIndex} из ${STEPS.length}`)
               }
             </span>
             <span style={{ color: pct > 75 ? OR : '#9CA3AF', fontWeight: pct > 75 ? 600 : 400 }}>{pct}%</span>
@@ -683,12 +647,12 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
                 </span>
               </div>
               <div className="uq-contact-q" style={{ fontSize:'1.5rem', fontWeight:700, color:'#111', marginBottom:'.5rem' }}>
-                {lang === 'en' ? 'Where should we reach you?' : 'Куда вам написать?'}
+                {lang === 'en' ? 'Where should we send your results?' : 'Куда отправить результат?'}
               </div>
               <div style={{ fontSize:'.95rem', color:'#6B7280', marginBottom:'1.75rem', lineHeight:1.65 }}>
                 {lang === 'en'
-                  ? 'Our consultant will message you on WhatsApp — no cold calls, no spam.'
-                  : 'Консультант напишет вам в WhatsApp — без звонков, без спама.'}
+                  ? 'A consultant will send your university list on WhatsApp — no cold calls, no spam.'
+                  : 'Консультант пришлёт список университетов в WhatsApp — без звонков и спама.'}
               </div>
               <div style={{ marginBottom:'.65rem' }}>
                 <label style={{ display:'block', fontSize:'.75rem', fontWeight:600, color:'#9CA3AF', letterSpacing:'.07em', marginBottom:'.4rem' }}>WHATSAPP</label>

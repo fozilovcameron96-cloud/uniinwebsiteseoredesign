@@ -18,10 +18,10 @@ export default function FloatCTA({ onOpenChat }: FloatCTAProps) {
       setShow(scrolled > 500 && !nearBottom);
     };
     window.addEventListener('scroll', onScroll);
-    const timer = setTimeout(() => {
-      if (window.scrollY < 100) setShow(true);
-    }, 3500);
-    return () => { window.removeEventListener('scroll', onScroll); clearTimeout(timer); };
+    // A timer used to force this open after 3.5s even at the top of the page,
+    // where it sat directly on top of the hero's own button - two identical
+    // CTAs stacked. It only appears past the hero now.
+    return () => { window.removeEventListener('scroll', onScroll); };
   }, []);
 
   return (
