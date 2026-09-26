@@ -285,20 +285,23 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
   // still left a contactable row, but that row was never scored, emailed or
   // written to the Sheet, so nobody ever saw it - and a half-answered profile
   // is not a lead worth calling anyway.
+  //
+  // The contact screen is also the last screen: it carries the optional notes
+  // box and the submit button. Notes used to have a screen of their own after
+  // contact, which meant someone could type their WhatsApp number and then
+  // close the tab on a screen that asks for nothing - and with the partial
+  // save gone, that lead left nothing behind at all.
   const NAME_AT    = 0
   const CONTACT_AT = STEPS.length + 1
-  const TOTAL      = STEPS.length + 3 // name + questions + contact + closing screen
+  const TOTAL      = STEPS.length + 2 // name + questions + contact, which submits
 
   const isName    = step === NAME_AT
   const isContact = step === CONTACT_AT
-  const isFinal   = step === TOTAL - 1
-  const cur       = (isName || isContact || isFinal)
-    ? null
-    : STEPS[step < CONTACT_AT ? step - 1 : step - 2]
+  const cur       = (isName || isContact) ? null : STEPS[step - 1]
   // Counts questions, not internal steps. The name and contact screens have
   // their own labels, so numbering them made the counter read "Step 1 of 10"
   // for a quiz that only ever asks eight questions.
-  const qIndex    = step < CONTACT_AT ? step : step - 1
+  const qIndex    = step
   const pct       = Math.round((step / (TOTAL - 1)) * 100)
   const selVal    = cur ? answers[cur.key] : null
   // A custom ("Other") answer typed on a previous visit to this step won't match any
@@ -333,15 +336,6 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
     setStep(s => s + 1)
   }
 
-  function saveContactAndContinue() {
-    if (!contact.whatsapp.trim() || !contact.email.trim()) {
-      setError(lang === 'en' ? 'Please enter your WhatsApp number and email' : 'Пожалуйста, укажите WhatsApp и email')
-      return
-    }
-    setError('')
-    setStep(s => s + 1)
-  }
-
   function confirmOther() {
     const val = (otherText[cur.key] || '').trim()
     if (!val) return
@@ -364,7 +358,9 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
           name: contact.name.trim(),
           whatsapp: contact.whatsapp.trim(),
           email: contact.email.trim(),
-          source: 'quiz',
+          // The API accepts a fixed set of sources and silently rewrites anything
+          // else to landing_page, so send the value it really stores.
+          source: 'landing_page',
           answers: { ...answers, notes: contact.notes.trim() },
         }),
       })
@@ -460,10 +456,8 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
                 : isName
                   ? (lang === 'en' ? 'Getting started' : 'Начало')
                 : isContact
-                  ? (lang === 'en' ? 'Your contact details' : 'Ваши контакты')
-                  : isFinal
-                    ? (lang === 'en' ? 'Last step' : 'Последний шаг')
-                    : (lang === 'en' ? `Question ${qIndex} of ${STEPS.length}` : `Вопрос ${qIndex} из ${STEPS.length}`)
+                  ? (lang === 'en' ? 'Last step' : 'Последний шаг')
+                  : (lang === 'en' ? `Question ${qIndex} of ${STEPS.length}` : `Вопрос ${qIndex} из ${STEPS.length}`)
               }
             </span>
             <span style={{ color: pct > 75 ? OR : '#9CA3AF', fontWeight: pct > 75 ? 600 : 400 }}>{pct}%</span>
@@ -571,7 +565,7 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
               </Btn>
             </StepPane>
 
-          ) : (!isContact && !isFinal) ? (
+          ) : !isContact ? (
             <StepPane id={step}>
               {step > 0 && (
                 <button onClick={goBack} style={{
@@ -623,7 +617,7 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
               )}
             </StepPane>
 
-          ) : isContact ? (
+          ) : (
             <StepPane id={step}>
               <button onClick={goBack} style={{
                 display:'flex', alignItems:'center', gap:'.3rem', marginBottom:'1rem',
@@ -670,33 +664,6 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
                   onFocus={e => { e.target.style.borderColor = OR; e.target.style.boxShadow = `0 0 0 3px rgba(249,115,22,.12)` }}
                   onBlur={e => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = 'none' }} />
               </div>
-              {error && <div style={{ color:'#EF4444', fontSize:'.78rem', marginBottom:'.75rem' }}>{error}</div>}
-              <Btn onClick={saveContactAndContinue}>
-                {lang === 'en' ? 'Continue' : 'Далее'}
-              </Btn>
-              <div style={{ textAlign:'center', marginTop:'.75rem', fontSize:'.7rem', color:'#C0C7D0' }}>
-                {lang === 'en' ? 'Your data is protected · No spam' : 'Ваши данные защищены · Без спама'}
-              </div>
-            </StepPane>
-
-          ) : (
-            <StepPane id={step}>
-              <button onClick={goBack} style={{
-                display:'flex', alignItems:'center', gap:'.3rem', marginBottom:'1rem',
-                background:'none', border:'none', color:'#9CA3AF', fontSize:'.8rem', fontWeight:600,
-                cursor:'pointer', padding:0,
-              }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                {lang === 'en' ? 'Back' : 'Назад'}
-              </button>
-              <div className="uq-contact-q" style={{ fontSize:'1.5rem', fontWeight:700, color:'#111', marginBottom:'.5rem' }}>
-                {lang === 'en' ? 'Anything else we should know?' : 'Что ещё нам стоит знать?'}
-              </div>
-              <div style={{ fontSize:'.95rem', color:'#6B7280', marginBottom:'1.75rem', lineHeight:1.65 }}>
-                {lang === 'en'
-                  ? 'Optional — but the more you tell us, the better we can prepare before we call.'
-                  : 'Необязательно — но чем больше вы расскажете, тем лучше мы подготовимся к разговору.'}
-              </div>
               <div style={{ marginBottom:'1.25rem' }}>
                 <label style={{ display:'block', fontSize:'.75rem', fontWeight:600, color:'#9CA3AF', letterSpacing:'.07em', marginBottom:'.4rem' }}>
                   {lang === 'en' ? 'ACADEMIC BACKGROUND / NOTES (OPTIONAL)' : 'ОБРАЗОВАНИЕ / ЗАМЕТКИ (НЕОБЯЗАТЕЛЬНО)'}
@@ -719,6 +686,7 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
                 {lang === 'en' ? 'Your data is protected · No spam' : 'Ваши данные защищены · Без спама'}
               </div>
             </StepPane>
+
           )}
 
         </div>
