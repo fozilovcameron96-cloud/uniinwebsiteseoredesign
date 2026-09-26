@@ -26,11 +26,7 @@ export interface Translation {
   tmLbl: string; tmTitle: string;
   tm1q: string; tm2q: string; tm3q: string;
   proofLbl: string; proofTitle: string; proofSub: string;
-  proofPending: string;
-  pf1t: string; pf1d: string;
-  pf2t: string; pf2d: string;
-  pf3t: string; pf3d: string;
-  pf4t: string; pf4d: string;
+  proofMore: string;
   accLbl: string; accTitle: string; accSub: string;
   acc1pill: string; acc1name: string; acc1role: string; acc1desc: string;
   acc1tag1: string; acc1tag2: string; acc1tag3: string;
@@ -84,7 +80,7 @@ export interface Translation {
 export const L: Record<Lang, Translation> = {
   en: {
     urg: "🎓 September 2026 intake — Applications now open · Free consultation available now",
-    badge: "Free for students from Uzbekistan and Tajikistan",
+    badge: "Free for students — always",
     title: "Study at a university <em>abroad</em>. Free for you.",
     sub: "We help students from Uzbekistan and Tajikistan get into universities in the UK, USA, Canada and seven other countries. Our help is free — the universities pay us, not you.",
     cta: "See where I can get in", note: "Free · 2 minutes",
@@ -118,11 +114,7 @@ export const L: Record<Lang, Translation> = {
     tm3q: '"Canada felt impossible from Samarkand. Universe In showed me it wasn\'t. I got into Seneca, got my study permit. Best decision of my life."',
     proofLbl: "Our students", proofTitle: "Students we have helped get in.",
     proofSub: "Real offer letters and visa approvals from students we worked with. Personal details are removed.",
-    proofPending: "Awaiting verified document",
-    pf1t: "Tashkent → Manchester", pf1d: "Undergraduate offer · September 2026 intake",
-    pf2t: "Samarkand → Heriot-Watt", pf2d: "Engineering offer via pathway · IELTS 6.0",
-    pf3t: "Dushanbe → Seneca", pf3d: "Study permit approved · first application",
-    pf4t: "Tashkent → Hult", pf4d: "Business offer with partial scholarship",
+    proofMore: "Show {n} more",
     accLbl: "Recognised & accredited by", accTitle: "Officially recognised.<br/>Globally trusted.",
     accSub: "Universe In holds accreditations from two of the most respected international education bodies in the world.",
     acc1pill: "Verified Partner", acc1name: "British Council", acc1role: "UK Government Cultural Relations Body",
@@ -179,7 +171,7 @@ export const L: Record<Lang, Translation> = {
   },
   ru: {
     urg: "🎓 Набор на сентябрь 2026 — приём заявок открыт · Бесплатная консультация доступна сейчас",
-    badge: "Бесплатно для студентов из Узбекистана и Таджикистана",
+    badge: "Бесплатно для студентов",
     title: "Поступите в университет <em>за границей</em>. Для вас — бесплатно.",
     sub: "Помогаем студентам из Узбекистана и Таджикистана поступить в университеты Великобритании, США, Канады и ещё семи стран. Наша помощь бесплатна — нам платят университеты, а не вы.",
     cta: "Узнать, куда я могу поступить", note: "Бесплатно · 2 минуты",
@@ -211,11 +203,7 @@ export const L: Record<Lang, Translation> = {
     tm3q: "«Канада казалась невозможной из Самарканда. Universe In показали, что это не так. Я поступила в Seneca, получила разрешение на учёбу. Лучшее решение в жизни.»",
     proofLbl: "Наши студенты", proofTitle: "Студенты, которым мы помогли поступить.",
     proofSub: "Реальные офферы и одобренные визы студентов, с которыми мы работали. Личные данные закрыты.",
-    proofPending: "Ожидает подтверждённый документ",
-    pf1t: "Ташкент → Манчестер", pf1d: "Оффер на бакалавриат · набор сентябрь 2026",
-    pf2t: "Самарканд → Heriot-Watt", pf2d: "Инжиниринг через pathway · IELTS 6.0",
-    pf3t: "Душанбе → Seneca", pf3d: "Разрешение на учёбу · с первой подачи",
-    pf4t: "Ташкент → Hult", pf4d: "Оффер на бизнес с частичной стипендией",
+    proofMore: "Показать ещё {n}",
     accLbl: "Аккредитация и признание", accTitle: "Официальное признание.<br/>Доверие по всему миру.",
     accSub: "Universe In имеет аккредитации двух самых уважаемых международных образовательных организаций.",
     acc1pill: "Проверенный партнёр", acc1name: "British Council", acc1role: "Британская государственная организация",
@@ -272,7 +260,7 @@ export const L: Record<Lang, Translation> = {
   },
   uz: {
     urg: "🎓 2026-yil sentabr qabuli — arizalar qabul qilinmoqda · Bepul maslahat mavjud",
-    badge: "O'zbekiston va Tojikiston talabalari uchun bepul",
+    badge: "Talabalar uchun bepul",
     title: "<em>Chet eldagi</em> universitetga kiring. Siz uchun bepul.",
     sub: "O'zbekiston va Tojikiston talabalariga Buyuk Britaniya, AQSh, Kanada va yana yetti mamlakat universitetlariga kirishda yordam beramiz. Yordamimiz bepul — bizga universitetlar to'laydi, siz emas.",
     cta: "Qayerga kira olishimni bilish", note: "Bepul · 2 daqiqa",
@@ -304,11 +292,7 @@ export const L: Record<Lang, Translation> = {
     tm3q: '"Samarqanddan Kanada imkonsiz tuyulardi. Universe In yo\'q ekanini ko\'rsatdi. Senecaga kirdim, ruxsatnoma oldim. Hayotimdagi eng yaxshi qaror."',
     proofLbl: "Bizning talabalar", proofTitle: "Kirishiga yordam bergan talabalarimiz.",
     proofSub: "Biz ishlagan talabalarning haqiqiy taklifnomalari va tasdiqlangan vizalari. Shaxsiy ma'lumotlar yopilgan.",
-    proofPending: "Tasdiqlangan hujjat kutilmoqda",
-    pf1t: "Toshkent → Manchester", pf1d: "Bakalavriat taklifnomasi · 2026 sentabr qabuli",
-    pf2t: "Samarqand → Heriot-Watt", pf2d: "Muhandislik, pathway orqali · IELTS 6.0",
-    pf3t: "Dushanbe → Seneca", pf3d: "O'qish ruxsatnomasi · birinchi topshirishda",
-    pf4t: "Toshkent → Hult", pf4d: "Biznes taklifnomasi, qismiy stipendiya bilan",
+    proofMore: "Yana {n} tasini ko'rsatish",
     accLbl: "Akkreditatsiya va tan olish", accTitle: "Rasmiy tan olingan.<br/>Dunyo bo'ylab ishonchli.",
     accSub: "Universe In dunyodagi eng nufuzli ikki xalqaro ta'lim tashkilotining akkreditatsiyasiga ega.",
     acc1pill: "Tasdiqlangan hamkor", acc1name: "British Council", acc1role: "Britaniya davlat tashkiloti",

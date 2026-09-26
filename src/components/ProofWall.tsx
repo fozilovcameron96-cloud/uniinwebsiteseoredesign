@@ -1,27 +1,21 @@
+import { useState } from 'react';
 import { useLang } from '../contexts/LangContext';
-import DocPlaceholder from './DocPlaceholder';
+import { OFFERS, offerSrc } from '../data/offers';
 
-// The page previously rendered no student proof at all - Testimonials.tsx only
-// ever showed accreditation cards, and the three testimonial strings in
-// translations.ts were never mounted anywhere.
+// Real redacted offer letters. Six are shown by default and the rest expand on
+// click, so the section proves volume without adding a screen of scrolling to
+// an already long page.
 //
-// This is the replacement, built on the proof the agency actually holds:
-// redacted offer letters and visa approvals. For this market a real offer
-// letter from a named university is stronger than a stock portrait, and it is
-// something a competing agency cannot fake as easily.
-//
-// Written testimonials are intentionally absent. The three in translations.ts
-// are unverified, and publishing invented student reviews under a registered UK
-// company is not worth the exposure. The slot below is ready for real ones.
+// Cards crop to the top of each letter: the crest and opening line are what
+// make it recognisable at thumbnail size.
+const INITIAL = 6;
+
 export default function ProofWall() {
   const { t } = useLang();
+  const [expanded, setExpanded] = useState(false);
 
-  const items = [
-    { title: t.pf1t, desc: t.pf1d },
-    { title: t.pf2t, desc: t.pf2d },
-    { title: t.pf3t, desc: t.pf3d },
-    { title: t.pf4t, desc: t.pf4d },
-  ];
+  const shown = expanded ? OFFERS : OFFERS.slice(0, INITIAL);
+  const hidden = OFFERS.length - INITIAL;
 
   return (
     <section className="pw-section">
@@ -31,18 +25,30 @@ export default function ProofWall() {
         <p className="pw-sub reveal">{t.proofSub}</p>
 
         <div className="pw-grid">
-          {items.map((it, i) => (
-            <figure className={`pw-card reveal reveal-delay-${(i % 3) + 1}`} key={i}>
+          {shown.map((o, i) => (
+            <figure className={`pw-card reveal reveal-delay-${(i % 3) + 1}`} key={o.src}>
               <div className="pw-doc">
-                <DocPlaceholder label={t.proofPending} lines={4} />
+                <img
+                  src={offerSrc(o)}
+                  alt={`${o.uni} — ${o.course}`}
+                  loading="lazy"
+                  width={900}
+                  height={1200}
+                />
               </div>
               <figcaption>
-                <div className="pw-card-t">{it.title}</div>
-                <div className="pw-card-d">{it.desc}</div>
+                <div className="pw-card-t">{o.uni}</div>
+                <div className="pw-card-d">{o.course}</div>
               </figcaption>
             </figure>
           ))}
         </div>
+
+        {!expanded && hidden > 0 && (
+          <button className="pw-more reveal" onClick={() => setExpanded(true)}>
+            {t.proofMore.replace('{n}', String(hidden))}
+          </button>
+        )}
       </div>
 
       <style>{`
@@ -54,17 +60,16 @@ export default function ProofWall() {
         }
         .pw-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
           gap: 20px;
         }
         .pw-card {
           /* Grid items default to min-width:auto; without this the document
-             placeholder's intrinsic width pushes the two-up mobile grid wider
-             than the screen. */
+             image's intrinsic width pushes the mobile grid past the screen. */
           min-width: 0;
           background: #fff; border: 1.5px solid var(--border);
-          border-radius: 20px; padding: 16px;
-          display: flex; flex-direction: column; gap: 14px;
+          border-radius: 18px; padding: 12px;
+          display: flex; flex-direction: column; gap: 12px;
           transition: border-color .3s, box-shadow .3s, transform .3s;
         }
         .pw-card:hover {
@@ -72,15 +77,35 @@ export default function ProofWall() {
           box-shadow: 0 16px 40px rgba(255,90,10,.08);
           transform: translateY(-3px);
         }
-        .pw-doc { aspect-ratio: 3 / 4; }
-        .pw-card-t { font-size: 14px; font-weight: 800; color: var(--navy); letter-spacing: -.1px; }
-        .pw-card-d { font-size: 12.5px; color: var(--sub); line-height: 1.6; margin-top: 3px; }
+        .pw-doc {
+          aspect-ratio: 3 / 4;
+          border-radius: 10px; overflow: hidden;
+          border: 1px solid var(--border);
+          background: #fff;
+        }
+        .pw-doc img {
+          width: 100%; height: 100%;
+          object-fit: cover; object-position: top center;
+          display: block;
+        }
+        .pw-card-t { font-size: 13.5px; font-weight: 800; color: var(--navy); letter-spacing: -.1px; }
+        .pw-card-d { font-size: 12px; color: var(--sub); line-height: 1.5; margin-top: 2px; }
+
+        .pw-more {
+          display: block; margin: 32px auto 0;
+          padding: 12px 26px; border-radius: 100px;
+          background: #fff; border: 1.5px solid var(--border);
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 13.5px; font-weight: 700; color: var(--navy);
+          cursor: pointer; transition: all .2s;
+        }
+        .pw-more:hover { border-color: var(--o); color: var(--o); }
 
         @media (max-width: 640px) {
           .pw-section { padding: 64px 20px; }
           .pw-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-          .pw-card { padding: 11px; border-radius: 16px; gap: 10px; }
-          .pw-sub { font-size: 14px; margin-bottom: 32px; }
+          .pw-card { padding: 9px; border-radius: 14px; gap: 9px; }
+          .pw-sub { font-size: 14px; margin-bottom: 30px; }
         }
       `}</style>
     </section>
