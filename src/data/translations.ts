@@ -69,6 +69,7 @@ export interface Translation {
   footerCopyright: string;
   footerRegistered: string;
   footerFreeStudents: string;
+  footerPrivacy: string;
 }
 
 export const L: Record<Lang, Translation> = {
@@ -156,6 +157,7 @@ export const L: Record<Lang, Translation> = {
     footerCopyright: "All rights reserved.",
     footerRegistered: "UK Registered Company",
     footerFreeStudents: "Free for students",
+    footerPrivacy: "Privacy Policy",
   },
   ru: {
     urg: "🎓 Набор на сентябрь 2026 — приём заявок открыт · Бесплатная консультация доступна сейчас",
@@ -239,6 +241,7 @@ export const L: Record<Lang, Translation> = {
     footerCopyright: "Все права защищены.",
     footerRegistered: "Зарегистрированная в Великобритании компания",
     footerFreeStudents: "Бесплатно для студентов",
+    footerPrivacy: "Политика конфиденциальности",
   },
   uz: {
     urg: "🎓 2026-yil sentabr qabuli — arizalar qabul qilinmoqda · Bepul maslahat mavjud",
@@ -322,5 +325,6 @@ export const L: Record<Lang, Translation> = {
     footerCopyright: "Barcha huquqlar himoyalangan.",
     footerRegistered: "Britaniyada ro'yxatga olingan kompaniya",
     footerFreeStudents: "Talabalar uchun bepul",
+    footerPrivacy: "Maxfiylik siyosati",
   },
 };

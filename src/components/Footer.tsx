@@ -102,6 +102,10 @@ export default function Footer() {
         <span>{t.footerRegistered}</span>
         <span className="footer-bottom-sep">·</span>
         <span>{t.footerFreeStudents}</span>
+        <span className="footer-bottom-sep">·</span>
+        {/* Meta requires a reachable privacy policy for the lead form, and a
+            page nothing links to is not really reachable. */}
+        <a className="footer-privacy" href="/privacy">{t.footerPrivacy}</a>
       </div>
     </footer>
   );

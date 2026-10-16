@@ -18,6 +18,7 @@ import Footer from './components/Footer';
 import FloatCTA from './components/FloatCTA';
 import { UniverseQuiz } from './components/UniverseQuiz';
 import DestinationPage from './components/DestinationPage';
+import Privacy from './components/Privacy';
 import { getDestination } from './data/destinations';
 
 function LandingPage({ initialQuizOpen = false }: { initialQuizOpen?: boolean }) {
@@ -128,14 +129,22 @@ const TITLES: Record<'landing' | 'apply', Record<Lang, { title: string; descript
   },
 };
 
+// Privacy is its own type rather than a PageType because it has no hreflang
+// set and no localized title map - it is one page in whichever language the
+// visitor is already reading, and it should never be indexed.
 type PageType = 'landing' | 'apply';
-type PageState = { type: PageType; lang: Lang } | { type: 'destination'; slug: string };
+type PageState =
+  | { type: PageType; lang: Lang }
+  | { type: 'destination'; slug: string }
+  | { type: 'privacy'; lang: Lang };
 
 // ru has no URL prefix (it's the default/x-default) - en and uz are prefixed.
-function pathFor(type: PageType, lang: Lang): string {
-  const base = type === 'apply' ? '/apply' : '/';
+// Privacy is included so the language switcher keeps you on the page you are
+// reading instead of dropping you back on the homepage mid-policy.
+function pathFor(type: PageType | 'privacy', lang: Lang): string {
+  const base = type === 'landing' ? '/' : `/${type}`;
   if (lang === 'ru') return base;
-  return type === 'apply' ? `/${lang}/apply` : `/${lang}/`;
+  return type === 'landing' ? `/${lang}/` : `/${lang}/${type}`;
 }
 
 function resolvePath(pathname: string): PageState {
@@ -144,6 +153,7 @@ function resolvePath(pathname: string): PageState {
   const rest = langMatch ? (langMatch[2] || '/') : pathname;
 
   if (rest === '/apply' || rest === '/apply/') return { type: 'apply', lang };
+  if (rest === '/privacy' || rest === '/privacy/') return { type: 'privacy', lang };
 
   const match = rest.match(/^\/study-in-([a-z-]+)\/?$/);
   if (match && getDestination(match[1])) return { type: 'destination', slug: match[1] };
@@ -162,7 +172,10 @@ export default function App() {
 
   useEffect(() => {
     // Destination pages set their own title/meta/schema - only landing/apply use this static map.
-    if (page.type === 'destination') return;
+    // Destination pages set their own title/meta/schema, and Privacy sets its
+    // own and is noindex - neither has an entry in TITLES, so reading one
+    // would throw.
+    if (page.type === 'destination' || page.type === 'privacy') return;
     const meta = TITLES[page.type][page.lang];
     document.title = meta.title;
     document.querySelector('meta[name="description"]')?.setAttribute('content', meta.description);
@@ -199,6 +212,11 @@ export default function App() {
   if (page.type === 'destination') {
     const dest = getDestination(page.slug);
     if (dest) return <LangProvider><DestinationPage destination={dest} /></LangProvider>;
+    // resolvePath only produces a destination state for a slug that exists, so
+    // this is unreachable - but the branch has to return unconditionally,
+    // otherwise a destination state falls through into code below that reads
+    // page.lang, which a destination state does not have.
+    return <LangProvider><LandingPage /></LangProvider>;
   }
 
   const navigateLang = (l: Lang) => {
@@ -208,7 +226,9 @@ export default function App() {
 
   return (
     <LangProvider initialLang={page.lang} onLangChange={navigateLang}>
-      {page.type === 'apply' ? <UniverseQuiz variant="page" /> : <LandingPage />}
+      {page.type === 'apply' ? <UniverseQuiz variant="page" />
+       : page.type === 'privacy' ? <Privacy />
+       : <LandingPage />}
     </LangProvider>
   );
 }
