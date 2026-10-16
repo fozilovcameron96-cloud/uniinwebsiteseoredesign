@@ -169,8 +169,12 @@ const STEPS = [
     question: 'Какой у вас примерный бюджет в год?', questionEn: 'What is your approximate annual budget?',
     sub: 'Годовой бюджет', subEn: 'Annual budget',
     cols: 1,
-    options:   ['До $5,000 в год','$5,000 – $15,000 в год','$15,000 – $30,000 в год','Свыше $30,000 в год','Ищу стипендии и гранты','Другое'],
-    optionsEn: ['Under $5,000/year','$5,000 – $15,000/year','$15,000 – $30,000/year','Over $30,000/year','Looking for scholarships','Other'],
+    // "Нет бюджета" replaced "До $5,000 в год" to match the Meta lead form.
+    // Blunter, and people answer it honestly rather than rounding themselves
+    // up into a band they cannot actually fund. Both score the same, so the
+    // scorer keeps the old string too and existing leads are unaffected.
+    options:   ['Нет бюджета','$5,000 – $15,000 в год','$15,000 – $30,000 в год','Свыше $30,000 в год','Ищу стипендии и гранты','Другое'],
+    optionsEn: ['No budget','$5,000 – $15,000/year','$15,000 – $30,000/year','Over $30,000/year','Looking for scholarships','Other'],
     other: 'Другое', otherPlaceholder: 'Ваш бюджет', otherPlaceholderEn: 'Your budget',
   },
   {
