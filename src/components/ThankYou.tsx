@@ -50,7 +50,6 @@ export default function ThankYou() {
         <div className="ty-inner">
           <div className="ty-tick"><Check size={30} strokeWidth={3} /></div>
           <h1 className="ty-title">{t.tyTitle}</h1>
-          <p className="ty-sub">{t.tySub}</p>
 
           <div className="ty-next">
             <div className="ty-next-label">{t.tyNextLabel}</div>
@@ -97,10 +96,6 @@ export default function ThankYou() {
           font-weight: 600; letter-spacing: -.5px; line-height: 1.15;
           color: var(--navy); margin: 0 0 14px;
         }
-        .ty-sub {
-          font-size: 16px; line-height: 1.75; color: var(--sub);
-          margin: 0 auto; max-width: 480px;
-        }
         .ty-next {
           margin-top: 36px; padding: 22px 26px;
           background: var(--bg2); border: 1.5px solid var(--border);
@@ -119,7 +114,6 @@ export default function ThankYou() {
         }
         @media (max-width: 640px) {
           .ty-hero { padding: 48px 20px 44px; }
-          .ty-sub { font-size: 15px; }
           .ty-next { padding: 18px 20px; }
         }
       `}</style>
