@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Check } from 'lucide-react';
+import { useReveal } from '../hooks/useReveal';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import ProofWall from './ProofWall';
@@ -26,6 +27,11 @@ import { useLang } from '../contexts/LangContext';
 // from search.
 export default function ThankYou() {
   const { t } = useLang();
+  // Every section below starts at opacity 0 and is faded in by an
+  // IntersectionObserver. LandingPage sets one up; this page did not, so the
+  // offer letters, accreditations and comparison all rendered correctly and
+  // were invisible - the page looked like nothing but a heading.
+  const revealRoot = useReveal();
 
   useEffect(() => {
     document.title = `${t.tyTitle} — Universe In`;
@@ -58,12 +64,16 @@ export default function ThankYou() {
       </section>
 
       {/* Everything below is proof, not persuasion - there is nothing left to
-          persuade them of, they have already applied. */}
-      <ProofWall />
-      <Partners />
-      <Accreditation />
-      <Comparison />
-      <RiskReversal />
+          persuade them of, they have already applied. The ref is what makes it
+          visible; see revealRoot above. */}
+      <div ref={revealRoot as React.RefObject<HTMLDivElement>}>
+        <ProofWall />
+        <Partners />
+        <Accreditation />
+        <Comparison />
+        <RiskReversal />
+      </div>
+
       <Footer />
 
       <style>{`
