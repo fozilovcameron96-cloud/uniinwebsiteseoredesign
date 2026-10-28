@@ -19,6 +19,7 @@ import FloatCTA from './components/FloatCTA';
 import { UniverseQuiz } from './components/UniverseQuiz';
 import DestinationPage from './components/DestinationPage';
 import Privacy from './components/Privacy';
+import ThankYou from './components/ThankYou';
 import { getDestination } from './data/destinations';
 
 function LandingPage({ initialQuizOpen = false }: { initialQuizOpen?: boolean }) {
@@ -136,12 +137,13 @@ type PageType = 'landing' | 'apply';
 type PageState =
   | { type: PageType; lang: Lang }
   | { type: 'destination'; slug: string }
-  | { type: 'privacy'; lang: Lang };
+  | { type: 'privacy'; lang: Lang }
+  | { type: 'thanks'; lang: Lang };
 
 // ru has no URL prefix (it's the default/x-default) - en and uz are prefixed.
 // Privacy is included so the language switcher keeps you on the page you are
 // reading instead of dropping you back on the homepage mid-policy.
-function pathFor(type: PageType | 'privacy', lang: Lang): string {
+function pathFor(type: PageType | 'privacy' | 'thanks', lang: Lang): string {
   const base = type === 'landing' ? '/' : `/${type}`;
   if (lang === 'ru') return base;
   return type === 'landing' ? `/${lang}/` : `/${lang}/${type}`;
@@ -154,6 +156,7 @@ function resolvePath(pathname: string): PageState {
 
   if (rest === '/apply' || rest === '/apply/') return { type: 'apply', lang };
   if (rest === '/privacy' || rest === '/privacy/') return { type: 'privacy', lang };
+  if (rest === '/thanks' || rest === '/thanks/') return { type: 'thanks', lang };
 
   const match = rest.match(/^\/study-in-([a-z-]+)\/?$/);
   if (match && getDestination(match[1])) return { type: 'destination', slug: match[1] };
@@ -175,7 +178,7 @@ export default function App() {
     // Destination pages set their own title/meta/schema, and Privacy sets its
     // own and is noindex - neither has an entry in TITLES, so reading one
     // would throw.
-    if (page.type === 'destination' || page.type === 'privacy') return;
+    if (page.type === 'destination' || page.type === 'privacy' || page.type === 'thanks') return;
     const meta = TITLES[page.type][page.lang];
     document.title = meta.title;
     document.querySelector('meta[name="description"]')?.setAttribute('content', meta.description);
@@ -228,6 +231,7 @@ export default function App() {
     <LangProvider initialLang={page.lang} onLangChange={navigateLang}>
       {page.type === 'apply' ? <UniverseQuiz variant="page" />
        : page.type === 'privacy' ? <Privacy />
+       : page.type === 'thanks' ? <ThankYou />
        : <LandingPage />}
     </LangProvider>
   );

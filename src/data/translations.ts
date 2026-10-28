@@ -70,6 +70,8 @@ export interface Translation {
   footerRegistered: string;
   footerFreeStudents: string;
   footerPrivacy: string;
+  tyTitle: string; tySub: string; tyNextLabel: string;
+  tyStep1: string; tyStep2: string; tyStep3: string;
 }
 
 export const L: Record<Lang, Translation> = {
@@ -158,6 +160,12 @@ export const L: Record<Lang, Translation> = {
     footerRegistered: "UK Registered Company",
     footerFreeStudents: "Free for students",
     footerPrivacy: "Privacy Policy",
+    tyTitle: "Thank you — we have your application",
+    tySub: "A consultant will read your profile properly, not skim it. You do not need to do anything else for now.",
+    tyNextLabel: "WHAT HAPPENS NEXT",
+    tyStep1: "A consultant reviews what you told us",
+    tyStep2: "We message you on WhatsApp with the universities that fit",
+    tyStep3: "If something is missing, we tell you what to fix",
   },
   ru: {
     urg: "🎓 Набор на сентябрь 2026 — приём заявок открыт · Бесплатная консультация доступна сейчас",
@@ -242,6 +250,12 @@ export const L: Record<Lang, Translation> = {
     footerRegistered: "Зарегистрированная в Великобритании компания",
     footerFreeStudents: "Бесплатно для студентов",
     footerPrivacy: "Политика конфиденциальности",
+    tyTitle: "Спасибо — заявка принята",
+    tySub: "Консультант внимательно изучит ваш профиль, а не просто пробежит глазами. Больше от вас пока ничего не нужно.",
+    tyNextLabel: "ЧТО ДАЛЬШЕ",
+    tyStep1: "Консультант изучит то, что вы написали",
+    tyStep2: "Напишем вам в WhatsApp с подходящими университетами",
+    tyStep3: "Если чего-то не хватает — скажем, что исправить",
   },
   uz: {
     urg: "🎓 2026-yil sentabr qabuli — arizalar qabul qilinmoqda · Bepul maslahat mavjud",
@@ -326,5 +340,11 @@ export const L: Record<Lang, Translation> = {
     footerRegistered: "Britaniyada ro'yxatga olingan kompaniya",
     footerFreeStudents: "Talabalar uchun bepul",
     footerPrivacy: "Maxfiylik siyosati",
+    tyTitle: "Rahmat — arizangiz qabul qilindi",
+    tySub: "Konsultant profilingizni shoshilmasdan, diqqat bilan oʻrganadi. Hozircha sizdan boshqa hech narsa talab qilinmaydi.",
+    tyNextLabel: "KEYIN NIMA BOʻLADI",
+    tyStep1: "Konsultant yozganlaringizni koʻrib chiqadi",
+    tyStep2: "Mos universitetlar bilan WhatsAppda yozamiz",
+    tyStep3: "Agar biror narsa yetishmasa — nimani tuzatish kerakligini aytamiz",
   },
 };
