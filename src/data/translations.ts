@@ -72,6 +72,7 @@ export interface Translation {
   footerPrivacy: string;
   tyTitle: string; tyNextLabel: string;
   tyStep1: string; tyStep2: string; tyStep3: string;
+  dqTitle: string; dqBody: string; dqNote: string;
 }
 
 export const L: Record<Lang, Translation> = {
@@ -165,6 +166,9 @@ export const L: Record<Lang, Translation> = {
     tyStep1: "A consultant reviews what you told us",
     tyStep2: "We message you on WhatsApp with the universities that fit",
     tyStep3: "If something is missing, we tell you what to fix",
+    dqTitle: "Thank you for your interest",
+    dqBody: "Based on your answers, we can't take your enquiry further right now.",
+    dqNote: "If your plans change, you're welcome to contact us again. We wish you all the best with your studies.",
   },
   ru: {
     urg: "🎓 Набор на сентябрь 2026 — приём заявок открыт · Бесплатная консультация доступна сейчас",
@@ -254,6 +258,9 @@ export const L: Record<Lang, Translation> = {
     tyStep1: "Консультант изучит то, что вы написали",
     tyStep2: "Напишем вам в WhatsApp с подходящими университетами",
     tyStep3: "Если чего-то не хватает — скажем, что исправить",
+    dqTitle: "Спасибо за интерес",
+    dqBody: "Судя по вашим ответам, сейчас мы не можем продолжить работу по вашей заявке.",
+    dqNote: "Если ваши планы изменятся, будем рады услышать вас снова. Желаем вам успехов в учёбе.",
   },
   uz: {
     urg: "🎓 2026-yil sentabr qabuli — arizalar qabul qilinmoqda · Bepul maslahat mavjud",
@@ -343,5 +350,8 @@ export const L: Record<Lang, Translation> = {
     tyStep1: "Konsultant yozganlaringizni koʻrib chiqadi",
     tyStep2: "Mos universitetlar bilan WhatsAppda yozamiz",
     tyStep3: "Agar biror narsa yetishmasa — nimani tuzatish kerakligini aytamiz",
+    dqTitle: "Qiziqishingiz uchun rahmat",
+    dqBody: "Javoblaringizga koʻra, hozircha murojaatingiz boʻyicha davom eta olmaymiz.",
+    dqNote: "Agar rejalaringiz oʻzgarsa, biz bilan yana bogʻlanishingiz mumkin. Oʻqishingizda omad tilaymiz.",
   },
 };
