@@ -1,7 +1,23 @@
-# NETLIFY ONLY. The site is deployed on Vercel, which ignores this file
-# entirely - its equivalent lives in vercel.json and had to be written
-# differently. Kept so a move back to Netlify still works.
+# THE LIVE SITE IS ON NETLIFY (checked 18 Nov 2026: responses carry
+# x-nf-request-id and "Netlify Edge"; it's published from Bolt). This file is
+# what actually runs. vercel.json says the same things for Vercel, kept in case
+# the site ever moves there; keep the two in step.
 #
-# Netlify matches physically-existing files first automatically, so this
-# fallback only applies to paths with no matching file, like /apply.
+# Netlify serves a real file first when one exists; these rules cover paths
+# with no file. Order matters: first match wins.
+
+# The old quiz addresses now go to the one application form (18 Nov 2026).
+# Its quiz only asked for $5k; the new form has the £10k rule. Query strings
+# (utm_source, ad_id, fbclid) are carried over.
+/apply      /start      301
+/en/apply   /en/start   301
+/uz/apply   /uz/start   301
+
+# The Round 3 ad landing page has its own lightweight entry (start.html), so a
+# phone on mobile data loads only the form, not the whole site.
+/start      /start.html  200
+/en/start   /start.html  200
+/uz/start   /start.html  200
+
+# Everything else is the single-page site.
 /*  /index.html  200
