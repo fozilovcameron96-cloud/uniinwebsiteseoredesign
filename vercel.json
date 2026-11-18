@@ -1,7 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "routes": [
+    { "src": "/(en/|uz/)?apply/?", "status": 301, "headers": { "Location": "/$1start" } },
     { "handle": "filesystem" },
+    { "src": "/(en/|uz/)?start/?", "dest": "/start.html" },
     { "src": "/.*", "dest": "/index.html" }
   ]
 }

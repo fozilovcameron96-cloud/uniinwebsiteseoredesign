@@ -1,4 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
+import { adAnswers } from '../data/adParams'
+
+// Meta Pixel, loaded in index.html. Optional: an ad blocker or a failed load
+// leaves it undefined, and the quiz must work the same either way.
+type Fbq = (...args: unknown[]) => void
+function pixel(...args: unknown[]) {
+  try { (window as unknown as { fbq?: Fbq }).fbq?.(...args) } catch { /* never block a lead */ }
+}
 
 // The site's own logo, same file the Navbar, Footer and favicon use.
 // This was loading from imgbox.com — a third-party image host, and a JPEG, so
@@ -273,11 +281,17 @@ function IconBadge({ name }) {
 export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => void; variant?: 'modal' | 'page' }) {
   const page = variant === 'page'
   useAnimStyles()
-  const [lang, setLang]             = useState('ru')
+  // Follows the page's language, so an English ad landing on /en/apply opens an
+  // English quiz instead of a Russian one with a small EN toggle in the corner.
+  const [lang, setLang]             = useState(() => /^\/en(\/|$)/.test(window.location.pathname) ? 'en' : 'ru')
   const [step, setStep]             = useState(0)
   const [answers, setAnswers]       = useState({})
   const [otherText, setOtherText]   = useState({})
   const [contact, setContact]       = useState({ name:'', whatsapp:'', email:'', notes:'' })
+  // Where the student wants to be messaged (18 Nov). Round 2's first three
+  // leads weren't reachable on WhatsApp; in Uzbekistan and Kazakhstan many
+  // people live on Telegram instead. Shown in the Sheet so dad uses the right app.
+  const [channel, setChannel]       = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone]             = useState(false)
   const [priority, setPriority]     = useState('cold')
@@ -349,7 +363,11 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
 
   async function submit() {
     if (!contact.name.trim() || !contact.whatsapp.trim() || !contact.email.trim()) {
-      setError(lang === 'en' ? 'Please enter your name, WhatsApp number, and email' : 'Пожалуйста, заполните имя, WhatsApp и email')
+      setError(lang === 'en' ? 'Please enter your name, phone number, and email' : 'Пожалуйста, заполните имя, номер телефона и email')
+      return
+    }
+    if (!channel) {
+      setError(lang === 'en' ? 'Please choose WhatsApp or Telegram' : 'Пожалуйста, выберите WhatsApp или Telegram')
       return
     }
     setSubmitting(true); setError('')
@@ -365,13 +383,24 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
           // The API accepts a fixed set of sources and silently rewrites anything
           // else to landing_page, so send the value it really stores.
           source: 'landing_page',
-          answers: { ...answers, notes: contact.notes.trim() },
+          answers: { ...answers, notes: contact.notes.trim(), contact_channel: channel, ...adAnswers() },
         }),
       })
       if (!res.ok) throw new Error()
       const data = await res.json()
-      setPriority(data.lead?.priority ?? 'cold')
+      const pr = data.lead?.priority ?? 'cold'
+      setPriority(pr)
       setDone(true)
+      // Only after the lead is saved, so Meta never counts a submit that failed.
+      // Lead = finished the quiz. QualifiedLead = the scorer rated them hot or
+      // warm, for an ad set that should look for people who can pay rather than
+      // anyone who fills in a form. Event IDs let a server-side copy of the same
+      // event be matched later instead of counted twice.
+      const id = data.lead?.id
+      pixel('track', 'Lead', { content_name: 'apply_quiz' }, id ? { eventID: `lead_${id}` } : undefined)
+      if (pr === 'hot' || pr === 'warm') {
+        pixel('trackCustom', 'QualifiedLead', { priority: pr }, id ? { eventID: `qual_${id}` } : undefined)
+      }
     } catch {
       setError(lang === 'en' ? 'Something went wrong. Please try again.' : 'Ошибка. Попробуйте ещё раз.')
     } finally {
@@ -490,8 +519,8 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
                 </div>
                 <div className="uq-done-body" style={{ fontSize:'.875rem', color:'#6B7280', lineHeight:1.75 }}>
                   {lang === 'en'
-                    ? <><b>Your profile looks great.</b> Our consultant will contact you on WhatsApp within <strong style={{ color:'#111' }}>1 hour</strong>.</>
-                    : <>Ваш профиль выглядит отлично. Консультант свяжется с вами в WhatsApp в течение <strong style={{ color:'#111' }}>1 часа</strong>.</>}
+                    ? <><b>Your profile looks great.</b> Our consultant will contact you on {channel === 'telegram' ? 'Telegram' : 'WhatsApp'} within <strong style={{ color:'#111' }}>1 hour</strong>.</>
+                    : <>Ваш профиль выглядит отлично. Консультант свяжется с вами в {channel === 'telegram' ? 'Telegram' : 'WhatsApp'} в течение <strong style={{ color:'#111' }}>1 часа</strong>.</>}
                 </div>
                 <a href={`https://wa.me/${WA}?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
                   style={{
@@ -649,15 +678,37 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
               </div>
               <div style={{ fontSize:'.95rem', color:'#6B7280', marginBottom:'1.75rem', lineHeight:1.65 }}>
                 {lang === 'en'
-                  ? 'A consultant will send your university list on WhatsApp — no cold calls, no spam.'
-                  : 'Консультант пришлёт список университетов в WhatsApp — без звонков и спама.'}
+                  ? 'A consultant will send your university list on WhatsApp or Telegram — no cold calls, no spam.'
+                  : 'Консультант пришлёт список университетов в WhatsApp или Telegram — без звонков и спама.'}
               </div>
               <div style={{ marginBottom:'.65rem' }}>
-                <label style={{ display:'block', fontSize:'.75rem', fontWeight:600, color:'#9CA3AF', letterSpacing:'.07em', marginBottom:'.4rem' }}>WHATSAPP</label>
+                <label style={{ display:'block', fontSize:'.75rem', fontWeight:600, color:'#9CA3AF', letterSpacing:'.07em', marginBottom:'.4rem' }}>
+                  {lang === 'en' ? 'PHONE NUMBER (WHATSAPP OR TELEGRAM)' : 'НОМЕР ТЕЛЕФОНА (WHATSAPP ИЛИ TELEGRAM)'}
+                </label>
                 <input className={fieldCls} style={field} placeholder="+998 90 123 45 67" type="tel"
                   value={contact.whatsapp} onChange={e => setContact(p => ({ ...p, whatsapp: e.target.value }))}
                   onFocus={e => { e.target.style.borderColor = OR; e.target.style.boxShadow = `0 0 0 3px rgba(249,115,22,.12)` }}
                   onBlur={e => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = 'none' }} />
+              </div>
+              <div style={{ marginBottom:'.85rem' }}>
+                <label style={{ display:'block', fontSize:'.75rem', fontWeight:600, color:'#9CA3AF', letterSpacing:'.07em', marginBottom:'.4rem' }}>
+                  {lang === 'en' ? 'WHERE SHOULD WE MESSAGE YOU?' : 'КУДА ВАМ НАПИСАТЬ?'}
+                </label>
+                <div style={{ display:'flex', gap:'.5rem' }}>
+                  {['whatsapp', 'telegram'].map(c => (
+                    <button key={c} type="button" onClick={() => { setChannel(c); setError('') }}
+                      aria-pressed={channel === c}
+                      style={{
+                        flex:1, padding:'.8rem .5rem', borderRadius:'12px', cursor:'pointer',
+                        fontSize:'.95rem', fontWeight:600,
+                        border:`2px solid ${channel === c ? OR : '#E5E7EB'}`,
+                        background: channel === c ? 'rgba(249,115,22,.08)' : '#fff',
+                        color: channel === c ? OR2 : '#374151',
+                      }}>
+                      {c === 'whatsapp' ? 'WhatsApp' : 'Telegram'}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div style={{ marginBottom:'1.25rem' }}>
                 <label style={{ display:'block', fontSize:'.75rem', fontWeight:600, color:'#9CA3AF', letterSpacing:'.07em', marginBottom:'.4rem' }}>
@@ -684,7 +735,7 @@ export function UniverseQuiz({ onClose, variant = 'modal' }: { onClose?: () => v
               <Btn onClick={submit} disabled={submitting}>
                 {submitting
                   ? (lang === 'en' ? 'Sending...' : 'Отправка...')
-                  : (lang === 'en' ? 'Get free consultation' : 'Получить бесплатную консультацию')}
+                  : (lang === 'en' ? 'Get my consultation' : 'Получить консультацию')}
               </Btn>
               <div style={{ textAlign:'center', marginTop:'.75rem', fontSize:'.7rem', color:'#C0C7D0' }}>
                 {lang === 'en' ? 'Your data is protected · No spam' : 'Ваши данные защищены · Без спама'}

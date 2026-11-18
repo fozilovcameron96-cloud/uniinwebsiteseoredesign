@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { LangProvider } from './contexts/LangContext';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { LangProvider, useLang } from './contexts/LangContext';
 import type { Lang } from './data/translations';
 import UrgencyBar from './components/UrgencyBar';
 import Navbar from './components/Navbar';
@@ -16,22 +16,39 @@ import Partners from './components/Partners';
 import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 import FloatCTA from './components/FloatCTA';
-import { UniverseQuiz } from './components/UniverseQuiz';
 import DestinationPage from './components/DestinationPage';
 import Privacy from './components/Privacy';
 import ThankYou from './components/ThankYou';
 import Enquiry from './components/Enquiry';
 import { getDestination } from './data/destinations';
 
-function LandingPage({ initialQuizOpen = false }: { initialQuizOpen?: boolean }) {
-const [quizOpen, setQuizOpen] = useState(initialQuizOpen);
+// Fallback only: in production vercel.json sends /start to start.html, its own
+// lightweight entry. This keeps /start working if that route is ever missing.
+// Lazy, so the phone-number data it carries never slows down the rest of the site.
+const StartForm = lazy(() => import('./components/StartForm'));
+function StartRoute() {
+  const { lang, setLang } = useLang();
+  return <StartForm lang={lang} setLang={setLang} />;
+}
 
-  const openQuiz = () => { setQuizOpen(true); document.body.style.overflow = 'hidden'; };
-  const closeQuiz = () => { setQuizOpen(false); document.body.style.overflow = ''; };
+// The old /apply quiz page now sends people to /start. vercel.json does this
+// as a 301 before the app even loads; this covers anywhere that rule isn't.
+function ToStart({ lang }: { lang: Lang }) {
+  useEffect(() => { window.location.replace(startPath(lang) + window.location.search); }, [lang]);
+  return <div style={{ minHeight: '100vh', background: '#F0F2F5' }} />;
+}
 
-  useEffect(() => {
-    if (initialQuizOpen) document.body.style.overflow = 'hidden';
-  }, [initialQuizOpen]);
+// Every "apply" button on the site goes to the one application form, /start
+// (18 Nov 2026). The old quiz (UniverseQuiz) only asked for $5k and had no £10k
+// rule, so a visitor filtered out on /start could still become a lead through
+// it. Uzbek visitors get the Russian form: it has no Uzbek version.
+function startPath(lang: Lang): string {
+  return lang === 'en' ? '/en/start' : '/start';
+}
+
+function LandingPage() {
+  const { lang } = useLang();
+  const openQuiz = () => { window.location.href = startPath(lang); };
 
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -90,7 +107,6 @@ const [quizOpen, setQuizOpen] = useState(initialQuizOpen);
       <FinalCTA onOpenChat={openQuiz} />
       <Footer />
       <FloatCTA onOpenChat={openQuiz} />
-      {quizOpen && <UniverseQuiz onClose={closeQuiz} />}
     </>
   );
 }
@@ -104,29 +120,29 @@ const TITLES: Record<'landing' | 'apply', Record<Lang, { title: string; descript
   landing: {
     ru: {
       title: 'Universe In — Учёба за рубежом для студентов из Центральной Азии',
-      description: 'Учебная консультация из Великобритании, которая помогает студентам из Узбекистана и Таджикистана поступать в лучшие университеты мира. Бесплатная консультация, помощь с визой и стипендиями.',
+      description: 'Учебная консультация из Великобритании, которая помогает студентам из Узбекистана и Таджикистана поступать в лучшие университеты мира. Консультация, помощь с визой и жильём.',
     },
     en: {
       title: 'Universe In — Study Abroad from Central Asia',
-      description: 'UK-registered study abroad consultancy helping students from Uzbekistan and Tajikistan access world-class universities. Free guidance, visa support, scholarships.',
+      description: 'UK-registered study abroad consultancy helping students from Uzbekistan and Tajikistan access world-class universities. Guidance, visa support and accommodation help.',
     },
     uz: {
       title: 'Universe In — Markaziy Osiyodan xorijda taʼlim olish',
-      description: 'Buyuk Britaniyada roʻyxatdan oʻtgan taʼlim konsalting kompaniyasi Oʻzbekiston va Tojikiston talabalariga dunyoning yetakchi universitetlariga kirishda yordam beradi. Bepul maslahat, viza va stipendiya boʻyicha yordam.',
+      description: 'Buyuk Britaniyada roʻyxatdan oʻtgan taʼlim konsalting kompaniyasi Oʻzbekiston va Tojikiston talabalariga dunyoning yetakchi universitetlariga kirishda yordam beradi. Maslahat, viza va turar joy boʻyicha yordam.',
     },
   },
   apply: {
     ru: {
-      title: 'Узнайте свои шансы — бесплатный тест за 2 минуты | Universe In',
-      description: 'Ответьте на несколько вопросов о бюджете, уровне английского и сроках — узнайте, какие университеты и стипендии вам подходят. Бесплатно, 2 минуты.',
+      title: 'Узнайте свои шансы — тест за 2 минуты | Universe In',
+      description: 'Ответьте на несколько вопросов о бюджете, уровне английского и сроках — узнайте, какие университеты и стипендии вам подходят. 2 минуты.',
     },
     en: {
-      title: 'Check Your Chances — Free 2-Minute Quiz | Universe In',
-      description: 'Answer a few questions about your budget, English level, and timeline to see which universities and scholarships you qualify for. Free, takes 2 minutes.',
+      title: 'Check Your Chances — 2-Minute Quiz | Universe In',
+      description: 'Answer a few questions about your budget, English level, and timeline to see which universities and scholarships you qualify for. Takes 2 minutes.',
     },
     uz: {
-      title: 'Imkoniyatlaringizni bilib oling — Bepul 2 daqiqalik test | Universe In',
-      description: 'Byudjet, ingliz tili darajangiz va muddatlar haqida bir nechta savolga javob bering — qaysi universitet va stipendiyalarga mos kelishingizni biling. Bepul, 2 daqiqa.',
+      title: 'Imkoniyatlaringizni bilib oling — 2 daqiqalik test | Universe In',
+      description: 'Byudjet, ingliz tili darajangiz va muddatlar haqida bir nechta savolga javob bering — qaysi universitet va stipendiyalarga mos kelishingizni biling. 2 daqiqa.',
     },
   },
 };
@@ -140,12 +156,15 @@ type PageState =
   | { type: 'destination'; slug: string }
   | { type: 'privacy'; lang: Lang }
   | { type: 'thanks'; lang: Lang }
-  | { type: 'enquiry'; lang: Lang };
+  | { type: 'enquiry'; lang: Lang }
+  // The Round 3 ad landing page (18 Nov 2026): an instant-form-style apply
+  // flow. Not indexed, no nav, nothing to click away to. See StartForm.tsx.
+  | { type: 'start'; lang: Lang };
 
 // ru has no URL prefix (it's the default/x-default) - en and uz are prefixed.
 // Privacy is included so the language switcher keeps you on the page you are
 // reading instead of dropping you back on the homepage mid-policy.
-function pathFor(type: PageType | 'privacy' | 'thanks' | 'enquiry', lang: Lang): string {
+function pathFor(type: PageType | 'privacy' | 'thanks' | 'enquiry' | 'start', lang: Lang): string {
   const base = type === 'landing' ? '/' : `/${type}`;
   if (lang === 'ru') return base;
   return type === 'landing' ? `/${lang}/` : `/${lang}/${type}`;
@@ -160,6 +179,7 @@ function resolvePath(pathname: string): PageState {
   if (rest === '/privacy' || rest === '/privacy/') return { type: 'privacy', lang };
   if (rest === '/thanks' || rest === '/thanks/') return { type: 'thanks', lang };
   if (rest === '/enquiry' || rest === '/enquiry/') return { type: 'enquiry', lang };
+  if (rest === '/start' || rest === '/start/') return { type: 'start', lang };
 
   const match = rest.match(/^\/study-in-([a-z-]+)\/?$/);
   if (match && getDestination(match[1])) return { type: 'destination', slug: match[1] };
@@ -181,7 +201,7 @@ export default function App() {
     // Destination pages set their own title/meta/schema, and Privacy sets its
     // own and is noindex - neither has an entry in TITLES, so reading one
     // would throw.
-    if (page.type === 'destination' || page.type === 'privacy' || page.type === 'thanks' || page.type === 'enquiry') return;
+    if (page.type === 'destination' || page.type === 'privacy' || page.type === 'thanks' || page.type === 'enquiry' || page.type === 'start') return;
     const meta = TITLES[page.type][page.lang];
     document.title = meta.title;
     document.querySelector('meta[name="description"]')?.setAttribute('content', meta.description);
@@ -232,7 +252,8 @@ export default function App() {
 
   return (
     <LangProvider initialLang={page.lang} onLangChange={navigateLang}>
-      {page.type === 'apply' ? <UniverseQuiz variant="page" />
+      {page.type === 'start' ? <Suspense fallback={<div style={{ minHeight: '100vh', background: '#F0F2F5' }} />}><StartRoute /></Suspense>
+       : page.type === 'apply' ? <ToStart lang={page.lang} />
        : page.type === 'privacy' ? <Privacy />
        : page.type === 'thanks' ? <ThankYou />
        : page.type === 'enquiry' ? <Enquiry />

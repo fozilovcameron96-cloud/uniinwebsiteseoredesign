@@ -35,9 +35,9 @@ export interface PrivacyDoc {
   sections: PrivacySection[];
 }
 
-const UPDATED_EN = 'Last updated: 16 October 2026';
-const UPDATED_RU = 'Последнее обновление: 16 октября 2026';
-const UPDATED_UZ = 'Oxirgi yangilanish: 2026-yil 16-oktabr';
+const UPDATED_EN = 'Last updated: 18 November 2026';
+const UPDATED_RU = 'Последнее обновление: 18 ноября 2026';
+const UPDATED_UZ = 'Oxirgi yangilanish: 2026-yil 18-noyabr';
 
 const COMPANY_LINE =
   'UNIVERSE.IN LIMITED, 27 Inglis Way, Wrest House, London NW7 1TP, United Kingdom.';
@@ -84,7 +84,8 @@ export const PRIVACY: Record<Lang, PrivacyDoc> = {
           ['Resend', 'Sends you confirmation and follow-up email'],
           ['OpenRouter', 'Automated summary of your enquiry for our consultants'],
           ['Vercel', 'Hosts this website and our systems'],
-          ['Meta', 'Hosts the form, if you applied through Facebook or Instagram'],
+          ['Meta', 'Hosts the form if you applied through Facebook or Instagram, and measures visits and applications from our ads on this website (Meta Pixel)'],
+          ['Twilio', 'Sends our WhatsApp messages to you'],
         ],
         body2: [
           'We also share your details with universities and education providers you ask us to apply to, which may be outside the UK.',
@@ -164,7 +165,8 @@ export const PRIVACY: Record<Lang, PrivacyDoc> = {
           ['Resend', 'Отправка вам писем с подтверждением'],
           ['OpenRouter', 'Автоматическое резюме вашей заявки для консультанта'],
           ['Vercel', 'Хостинг этого сайта и наших систем'],
-          ['Meta', 'Размещение формы, если вы подали заявку через Facebook или Instagram'],
+          ['Meta', 'Размещение формы, если вы подали заявку через Facebook или Instagram, и учёт посещений и заявок с нашей рекламы на этом сайте (Meta Pixel)'],
+          ['Twilio', 'Отправка наших сообщений вам в WhatsApp'],
         ],
         body2: [
           'Мы также передаём ваши данные университетам и учебным заведениям, в которые вы просите нас подать заявку; они могут находиться за пределами Великобритании.',
@@ -244,7 +246,8 @@ export const PRIVACY: Record<Lang, PrivacyDoc> = {
           ['Resend', 'Sizga tasdiqlash xatlarini yuboradi'],
           ['OpenRouter', 'Konsultant uchun arizangizning avtomatik xulosasi'],
           ['Vercel', 'Ushbu sayt va tizimlarimiz hostingi'],
-          ['Meta', 'Agar Facebook yoki Instagram orqali ariza bergan boʻlsangiz, formani joylashtiradi'],
+          ['Meta', 'Agar Facebook yoki Instagram orqali ariza bergan boʻlsangiz, formani joylashtiradi, hamda ushbu saytda reklamamizdan kelgan tashrif va arizalarni oʻlchaydi (Meta Pixel)'],
+          ['Twilio', 'WhatsApp xabarlarimizni sizga yuboradi'],
         ],
         body2: [
           'Shuningdek, biz maʼlumotlaringizni siz ariza topshirishni soʻragan universitet va taʼlim muassasalariga uzatamiz; ular Buyuk Britaniyadan tashqarida boʻlishi mumkin.',

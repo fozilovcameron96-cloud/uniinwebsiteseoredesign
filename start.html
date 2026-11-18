@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--
+      The Round 3 ad landing page (/start, /en/start), as its own entry point
+      (18 Nov 2026). It used to load inside the main site, which made a phone on
+      mobile data download the whole homepage's code (~320 KB) and two font
+      families before the first question appeared: 2.7 s on a throttled test.
+      vercel.json sends /start and /en/start here. The main app keeps a /start
+      route too, as a fallback.
+    -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,follow" />
+    <meta name="theme-color" content="#F97316" />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <title>Universe In</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Loaded without blocking the first paint (media=print, then switched on):
+         on mobile data, waiting for Google's stylesheet held the whole page
+         blank. Text shows at once in the system font and swaps when it lands. -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" /></noscript>
+    <!-- Meta Pixel: keep in step with index.html. Off on local and home-network
+         addresses so testing never sends events to Meta. -->
+    <script>
+      if (!/^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(location.hostname)) {
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '545396509785203');
+      fbq('track', 'PageView');
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/start-main.tsx"></script>
+  </body>
+</html>

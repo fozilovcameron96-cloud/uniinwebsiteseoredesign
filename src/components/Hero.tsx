@@ -63,7 +63,7 @@ export default function Hero({ onOpenChat }: HeroProps) {
             <div className="stat-l">{t.s3}</div>
           </div>
           <div className="stat-item">
-            <div className="stat-n" style={{ color: 'var(--o)' }}>Free</div>
+            <div className="stat-n" style={{ color: 'var(--o)' }}>ICEF</div>
             <div className="stat-l">{t.s4}</div>
           </div>
         </div>

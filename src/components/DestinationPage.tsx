@@ -33,7 +33,8 @@ export default function DestinationPage({ destination: d }: DestinationPageProps
   }, [d]);
 
   // Destination pages are English-only content, so route to the English apply flow.
-  const goToApply = () => { window.location.href = '/en/apply'; };
+  // The one application form, with the £10k rule (18 Nov 2026).
+  const goToApply = () => { window.location.href = '/en/start'; };
 
   return (
     <>
@@ -60,7 +61,7 @@ export default function DestinationPage({ destination: d }: DestinationPageProps
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </button>
-            <span className="dest-hero-note">Free · 2 minutes · No commitment</span>
+            <span className="dest-hero-note">2 minutes · No commitment</span>
           </div>
         </div>
       </section>
@@ -137,7 +138,7 @@ export default function DestinationPage({ destination: d }: DestinationPageProps
             <div className="dot" /><span>Ready to find out?</span>
           </div>
           <h2 className="final-title">See if {d.name} is right for you.</h2>
-          <p className="final-sub">Free 2-minute quiz — get matched with universities that actually fit your budget and level.</p>
+          <p className="final-sub">A 2-minute quiz — get matched with universities that actually fit your budget and level.</p>
           <button className="btn-final" onClick={goToApply} style={{ margin: '0 auto' }}>
             <span>Check My Eligibility</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

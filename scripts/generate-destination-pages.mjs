@@ -94,10 +94,10 @@ function renderPage(d) {
             <h1 class="dest-hero-title">${escapeHtml(d.h1)}</h1>
             <p class="dest-hero-intro">${escapeHtml(d.intro)}</p>
             <div class="cta-group" style="align-items:center;">
-              <a class="btn-primary" href="/en/apply" style="text-decoration:none;">
+              <a class="btn-primary" href="/en/start" style="text-decoration:none;">
                 <span>Check My Eligibility</span>
               </a>
-              <span class="dest-hero-note">Free &middot; 2 minutes &middot; No commitment</span>
+              <span class="dest-hero-note">2 minutes &middot; No commitment</span>
             </div>
           </div>
         </section>
@@ -159,8 +159,8 @@ function renderPage(d) {
           <div class="final-inner">
             <div class="section-label" style="justify-content:center;"><div class="dot"></div><span>Ready to find out?</span></div>
             <h2 class="final-title">See if ${escapeHtml(d.name)} is right for you.</h2>
-            <p class="final-sub">Free 2-minute quiz &mdash; get matched with universities that actually fit your budget and level.</p>
-            <a class="btn-final" href="/en/apply" style="margin:0 auto;text-decoration:none;">
+            <p class="final-sub">A 2-minute quiz &mdash; get matched with universities that actually fit your budget and level.</p>
+            <a class="btn-final" href="/en/start" style="margin:0 auto;text-decoration:none;">
               <span>Check My Eligibility</span>
             </a>
           </div>

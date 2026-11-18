@@ -1,0 +1,11 @@
+/* Styles for the standalone /start page only: Tailwind and the font, without
+   the homepage's ~36 KB of custom CSS. See start.html. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: #F0F2F5;
+  -webkit-font-smoothing: antialiased;
+}
