@@ -232,7 +232,10 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
   const lang: L = pageLang === 'en' ? 'en' : 'ru'
   const t = (en: string, ru: string) => (lang === 'en' ? en : ru)
 
-  const [screen, setScreen] = useState<Screen>(() => (wasFilteredOut() ? 'notNow' : 'intro'))
+  // start.html draws the intro before React loads; if they already tapped its
+  // Start button, open straight on the first question.
+  const [screen, setScreen] = useState<Screen>(() =>
+    wasFilteredOut() ? 'notNow' : (window as unknown as { __uiStartTapped?: number }).__uiStartTapped ? 0 : 'intro')
   const [answers, setAnswers] = useState<Partial<Record<Key, string>>>({})
 
   const [name, setName] = useState('')

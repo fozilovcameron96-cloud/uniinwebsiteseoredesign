@@ -1,0 +1,9 @@
+# Netlify response headers (18 Nov 2026).
+# Files in /assets/ have a content hash in their name, so they never change at
+# the same address: phones may keep them for a year, and a second visit to the
+# form loads instantly. Pages themselves stay uncached, so a deploy shows at once.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/logo-round.png
+  Cache-Control: public, max-age=604800

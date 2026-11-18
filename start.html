@@ -38,6 +38,52 @@
   </head>
   <body>
     <div id="root"></div>
+    <!--
+      Instant intro (18 Nov 2026, "make sure it's very fast"). The intro screen
+      is drawn here, straight from the HTML, so the headline shows as soon as
+      the page arrives instead of after React and the form's code have loaded.
+      React replaces it with the identical live screen a moment later. It must
+      match StartForm.tsx's header and intro (same classes, same words), or
+      the page visibly jumps. A tap on Start before React is ready is
+      remembered (window.__uiStartTapped), so it isn't lost.
+      Skipped for a visitor locked out by the £10k filter: they go straight to
+      React's "not right now" screen.
+    -->
+    <script>
+      (function () {
+        try {
+          var at = Number(localStorage.getItem('uni_in_start_filtered'));
+          if (at && Date.now() - at < 30 * 86400000) return;
+        } catch (e) {}
+        var en = /^\/en(\/|$)/.test(location.pathname);
+        var T = en
+          ? { sub: 'Study abroad consultancy · London', h1: 'Study at a top UK university from £18,000 a year',
+              p: "Answer a few quick questions and we'll send you the universities that fit your budget.",
+              time: 'Takes about 1 minute.', start: 'Start' }
+          : { sub: 'Консультанты по учёбе за рубежом · Лондон', h1: 'Учёба в топовом университете Великобритании от £18 000 в год',
+              p: 'Ответьте на несколько коротких вопросов, и мы пришлём вам университеты, которые подходят под ваш бюджет.',
+              time: 'Около 1 минуты.', start: 'Начать' };
+        var on = 'bg-white text-orange-600', off = 'bg-white/20 text-white';
+        document.documentElement.lang = en ? 'en' : 'ru';
+        document.getElementById('root').innerHTML =
+          '<div class="min-h-screen bg-[#F0F2F5] sm:py-8"><div class="mx-auto w-full max-w-[440px] bg-white sm:rounded-2xl sm:shadow-sm overflow-hidden min-h-screen sm:min-h-0">' +
+          '<div class="relative h-24" style="background:linear-gradient(135deg,#F97316,#D95F00)">' +
+            '<div class="absolute top-3 right-3 flex gap-1">' +
+              '<span class="px-2.5 py-1 rounded-md text-xs font-bold ' + (en ? off : on) + '">RU</span>' +
+              '<span class="px-2.5 py-1 rounded-md text-xs font-bold ' + (en ? on : off) + '">EN</span>' +
+            '</div>' +
+            '<img src="/logo-round.png" alt="Universe In" width="56" height="56" class="absolute -bottom-7 left-5 w-14 h-14 rounded-full object-cover bg-black ring-4 ring-white shadow">' +
+          '</div>' +
+          '<div class="pl-[88px] pr-5 pt-2 pb-3"><div class="font-bold text-gray-900 leading-tight">Universe In</div><div class="text-xs text-gray-500">' + T.sub + '</div></div>' +
+          '<div class="h-1 bg-gray-100"><div class="h-1" style="width:0%;background:#F97316"></div></div>' +
+          '<div class="px-5 pt-6 pb-10"><div>' +
+            '<h1 class="text-[22px] font-bold text-gray-900 leading-snug">' + T.h1 + '</h1>' +
+            '<p class="mt-3 text-[15px] text-gray-600 leading-relaxed">' + T.p + '</p>' +
+            '<p class="mt-2 text-sm text-gray-400">' + T.time + '</p>' +
+            '<button type="button" onclick="window.__uiStartTapped=1;this.style.opacity=0.7" class="w-full py-4 rounded-xl text-white text-base font-bold mt-7" style="background:#F97316">' + T.start + '</button>' +
+          '</div></div></div></div>';
+      })();
+    </script>
     <script type="module" src="/src/start-main.tsx"></script>
   </body>
 </html>
