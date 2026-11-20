@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { getCountries, getCountryCallingCode, parsePhoneNumberFromString } from 'libphonenumber-js/mobile'
 import type { CountryCode } from 'libphonenumber-js'
 import { adAnswers } from '../data/adParams'
@@ -264,6 +264,24 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
 
   useEffect(() => { window.scrollTo(0, 0) }, [screen])
 
+  // Funnel counters (20 Nov 2026), as custom pixel events, so Events Manager
+  // shows where people drop off: PageView → FormStarted → DetailsReached →
+  // Lead, plus NotNow for anyone the money questions filtered out. Meta still
+  // optimises on Lead only. Each counts once per page load (going back and
+  // forward doesn't double it), and a filtered visitor reloading the locked
+  // page isn't counted again.
+  const counted = useRef(new Set<string>())
+  function count(event: string, params?: Record<string, string>) {
+    if (counted.current.has(event)) return
+    counted.current.add(event)
+    pixel('trackCustom', event, params)
+  }
+  useEffect(() => {
+    if (screen === 0) count('FormStarted')
+    if (screen === 'details') count('DetailsReached')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen])
+
   const parsed = useMemo(() => {
     const raw = phone.trim()
     return raw ? parseSmart(raw, country) : null
@@ -301,6 +319,7 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
       q.key === 'study_level' && answers.study_level !== opt.value ? { study_level: opt.value } : { ...answers, [q.key]: opt.value }
     setAnswers(next)
     if (opt.end) {
+      count('NotNow', { question: q.key, answer: opt.value })
       rememberFilteredOut()
       setTimeout(() => setScreen('notNow'), 180)
       return
