@@ -157,6 +157,23 @@ function reportTap(leadId: string, channel: 'whatsapp' | 'telegram') {
   } catch { /* the bot then just messages them; nothing breaks */ }
 }
 
+// Our own step log (20 Nov 2026, see start.html): each step goes to the Sheet's
+// "Funnel (website)" tab with the visit id start.html made, so drop-off can be
+// read without Meta, and visitors hidden from the pixel still count. Nothing
+// is logged without that id (local testing, the main site's fallback /start).
+// No names or numbers: only the step and the button they picked.
+const FUNNEL_API = API.replace(/\/leads\/submit$/, '/funnel')
+function logStep(step: string, lang: L, extra: { question?: string; answer?: string } = {}) {
+  const visit = (window as unknown as { __uiVisit?: string }).__uiVisit
+  if (!visit || import.meta.env.DEV) return
+  const ad = adAnswers()
+  const body = JSON.stringify({
+    visit, step, lang, question: extra.question ?? '', answer: extra.answer ?? '', ad: ad.ad_name ?? '', ad_id: ad.ad_id ?? '',
+  })
+  try { navigator.sendBeacon?.(FUNNEL_API, new Blob([body], { type: 'text/plain' })) } catch { /* counting never breaks the form */ }
+}
+const STEP_FOR_EVENT: Record<string, string> = { FormStarted: 'started', DetailsReached: 'details', NotNow: 'not_now' }
+
 // ─── PHONE ────────────────────────────────────────────────────────────────────
 // Checked against Google's libphonenumber data (the mobile-only build): the
 // right length and a real mobile prefix for the chosen country, so a typo or a
@@ -303,6 +320,7 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
     if (counted.current.has(event)) return
     counted.current.add(event)
     pixel('trackCustom', event, params)
+    if (STEP_FOR_EVENT[event]) logStep(STEP_FOR_EVENT[event], lang, { question: params?.question, answer: params?.answer })
   }
   useEffect(() => {
     if (screen === 0) count('FormStarted')
@@ -346,6 +364,12 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
     const next: Partial<Record<Key, string>> =
       q.key === 'study_level' && answers.study_level !== opt.value ? { study_level: opt.value } : { ...answers, [q.key]: opt.value }
     setAnswers(next)
+    // Each question's first answer goes to our step log (the filtering answers
+    // go as not_now below), so drop-off shows question by question.
+    if (!opt.end && !counted.current.has(`answered:${q.key}`)) {
+      counted.current.add(`answered:${q.key}`)
+      logStep('answered', lang, { question: q.key, answer: opt.value })
+    }
     if (opt.end) {
       count('NotNow', { question: q.key, answer: opt.value })
       rememberFilteredOut()
@@ -401,6 +425,7 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
       const pr: string = data.lead?.priority ?? 'cold'
       setLeadId(id)
       setScreen('thanks')
+      logStep('lead', lang, { answer: pr })
       // Only after the lead is saved, so Meta never counts a submit that failed.
       pixel('track', 'Lead', { content_name: FORM_VERSION }, id ? { eventID: `lead_${id}` } : undefined)
       if (pr === 'hot' || pr === 'warm') {
@@ -627,13 +652,13 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
                 {(channel === 'telegram' ? ['telegram', 'whatsapp'] : ['whatsapp', 'telegram']).map(c =>
                   c === 'telegram'
                     ? tgUrl && (
-                      <a key="tg" href={tgUrl} target="_blank" rel="noopener noreferrer" onClick={() => { pixel('trackCustom', 'MessageTap', { channel: 'telegram' }); reportTap(leadId, 'telegram') }}
+                      <a key="tg" href={tgUrl} target="_blank" rel="noopener noreferrer" onClick={() => { pixel('trackCustom', 'MessageTap', { channel: 'telegram' }); reportTap(leadId, 'telegram'); logStep('tapped', lang, { answer: 'telegram' }) }}
                         className="w-full py-4 rounded-xl text-white text-base font-bold" style={{ background: '#229ED9' }}>
                         {t('Text us on Telegram', 'Написать нам в Telegram')}
                       </a>
                     )
                     : (
-                      <a key="wa" href={waUrl} target="_blank" rel="noopener noreferrer" onClick={() => { pixel('trackCustom', 'MessageTap', { channel: 'whatsapp' }); reportTap(leadId, 'whatsapp') }}
+                      <a key="wa" href={waUrl} target="_blank" rel="noopener noreferrer" onClick={() => { pixel('trackCustom', 'MessageTap', { channel: 'whatsapp' }); reportTap(leadId, 'whatsapp'); logStep('tapped', lang, { answer: 'whatsapp' }) }}
                         className="w-full py-4 rounded-xl text-white text-base font-bold" style={{ background: '#25D366' }}>
                         {t('Text us on WhatsApp', 'Написать нам в WhatsApp')}
                       </a>

@@ -39,6 +39,28 @@
   <body>
     <div id="root"></div>
     <!--
+      Our own step log (20 Nov 2026): the "landed" row in the Sheet's
+      "Funnel (website)" tab, sent as soon as the page arrives so even visitors
+      who leave before the form loads are counted. StartForm.tsx logs the later
+      steps with the same visit id (window.__uiVisit). No names or numbers. Off
+      on local addresses, like the pixel.
+    -->
+    <script>
+      (function () {
+        if (/^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(location.hostname)) return;
+        try {
+          var id = window.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
+          window.__uiVisit = id;
+          var locked = false;
+          try { var at = Number(localStorage.getItem('uni_in_start_filtered')); locked = !!at && Date.now() - at < 30 * 86400000; } catch (e) {}
+          var q = new URLSearchParams(location.search);
+          var body = JSON.stringify({ visit: id, step: 'landed', answer: locked ? 'locked' : '',
+            lang: /^\/en(\/|$)/.test(location.pathname) ? 'en' : 'ru', ad: q.get('utm_content') || '', ad_id: q.get('ad_id') || '' });
+          if (navigator.sendBeacon) navigator.sendBeacon('https://silk-leads-dashboard.vercel.app/api/funnel', new Blob([body], { type: 'text/plain' }));
+        } catch (e) {}
+      })();
+    </script>
+    <!--
       Instant intro (18 Nov 2026, "make sure it's very fast"). The intro screen
       is drawn here, straight from the HTML, so the headline shows as soon as
       the page arrives instead of after React and the form's code have loaded.
