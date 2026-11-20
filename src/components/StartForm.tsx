@@ -38,8 +38,15 @@ const FORM_VERSION = 'landing_v1'
 // TELEGRAM_USERNAME is the account without the @; the button hides while empty.
 // @UNIVERSITY_IN ("Uni.In") is Uni In's own Telegram account, the one the
 // website already lists (user, 18 Nov; checked: a person account, not a channel).
-const WHATSAPP_NUMBER = '447476973866'
+//
+// WhatsApp goes to DAD's own WhatsApp (+44 7459 639803, the number behind the
+// site's WhatsApp button) since 20 Nov 2026: dad wanted students texting him
+// directly, not the bot. Tapping either button tells the dashboard (TAPPED_API),
+// and the bot then leaves that lead alone; leads who don't tap still get the
+// bot's message after 5 minutes. The bot's own number was 447476973866.
+const WHATSAPP_NUMBER = '447459639803'
 const TELEGRAM_USERNAME = 'UNIVERSITY_IN'
+const TAPPED_API = API.replace(/\/submit$/, '/tapped')
 
 const OR = '#F97316'
 const OR2 = '#D95F00'
@@ -128,6 +135,27 @@ const flowFor = (a: Partial<Record<Key, string>>): Question[] =>
   isLanguagePath(a)
     ? [Q_STUDY, Q_ENGLISH, Q_BUDGET_LANG, Q_FUNDING]
     : [Q_STUDY, Q_AFFORD, Q_ENGLISH, Q_BUDGET_UNI, Q_FUNDING]
+
+// An answer as the lead saw it on the button, in their language (both budget
+// questions share the key, so both are searched).
+const ALL_QUESTIONS = [Q_STUDY, Q_AFFORD, Q_ENGLISH, Q_BUDGET_UNI, Q_BUDGET_LANG, Q_FUNDING]
+function answerLabel(key: Key, value: string | undefined, lang: 'en' | 'ru'): string {
+  if (!value) return ''
+  const opt = ALL_QUESTIONS.filter(q => q.key === key).flatMap(q => q.options).find(o => o.value === value)
+  return opt ? opt[lang] : value
+}
+
+// Tells the dashboard they tapped "Text us on ...", so the WhatsApp bot leaves
+// them to dad. A beacon with a text/plain body: no CORS preflight, and it still
+// goes out while the phone switches to WhatsApp. Never blocks the tap.
+function reportTap(leadId: string, channel: 'whatsapp' | 'telegram') {
+  if (!leadId || import.meta.env.DEV) return
+  const body = JSON.stringify({ lead_id: leadId, channel })
+  try {
+    if (navigator.sendBeacon?.(TAPPED_API, new Blob([body], { type: 'text/plain' }))) return
+    void fetch(TAPPED_API, { method: 'POST', body, keepalive: true, mode: 'no-cors' }).catch(() => {})
+  } catch { /* the bot then just messages them; nothing breaks */ }
+}
 
 // ─── PHONE ────────────────────────────────────────────────────────────────────
 // Checked against Google's libphonenumber data (the mobile-only build): the
@@ -392,10 +420,18 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
           : 1
 
   const ref = leadId ? 'UI-' + leadId.slice(0, 6).toUpperCase() : ''
-  const waText = t(
-    `Hi! I've just applied on the Universe In website. My name is ${name.trim()}.${ref ? ` Ref: ${ref}` : ''}`,
-    `Здравствуйте! Я только что оставил(а) заявку на сайте Universe In. Меня зовут ${name.trim()}.${ref ? ` Номер заявки: ${ref}` : ''}`,
-  )
+  // Dad reads this first, in his own WhatsApp, so it carries their answers:
+  // he knows who they are before he replies.
+  const a = (key: Key) => answerLabel(key, answers[key], lang)
+  const waText = [
+    t("Hi! I've just applied on the Universe In website.", 'Здравствуйте! Я только что оставил(а) заявку на сайте Universe In.'),
+    `${t('Name', 'Имя')}: ${name.trim()}`,
+    a('study_level') && `${t('Study', 'Обучение')}: ${a('study_level')}`,
+    a('english_level') && `${t('English', 'Английский')}: ${a('english_level')}`,
+    a('budget') && `${t('Budget', 'Бюджет')}: ${a('budget')} ${t('a year', 'в год')}`,
+    a('funding') && `${t('Paid by', 'Оплачивает')}: ${a('funding')}`,
+    ref && `${t('Ref', 'Номер заявки')}: ${ref}`,
+  ].filter(Boolean).join('\n')
   const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`
   // t.me/<username>?text= opens the chat with the message typed in, ready to send.
   const tgUrl = TELEGRAM_USERNAME ? `https://t.me/${TELEGRAM_USERNAME}?text=${encodeURIComponent(waText)}` : ''
@@ -591,13 +627,13 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
                 {(channel === 'telegram' ? ['telegram', 'whatsapp'] : ['whatsapp', 'telegram']).map(c =>
                   c === 'telegram'
                     ? tgUrl && (
-                      <a key="tg" href={tgUrl} target="_blank" rel="noopener noreferrer" onClick={() => pixel('trackCustom', 'MessageTap', { channel: 'telegram' })}
+                      <a key="tg" href={tgUrl} target="_blank" rel="noopener noreferrer" onClick={() => { pixel('trackCustom', 'MessageTap', { channel: 'telegram' }); reportTap(leadId, 'telegram') }}
                         className="w-full py-4 rounded-xl text-white text-base font-bold" style={{ background: '#229ED9' }}>
                         {t('Text us on Telegram', 'Написать нам в Telegram')}
                       </a>
                     )
                     : (
-                      <a key="wa" href={waUrl} target="_blank" rel="noopener noreferrer" onClick={() => pixel('trackCustom', 'MessageTap', { channel: 'whatsapp' })}
+                      <a key="wa" href={waUrl} target="_blank" rel="noopener noreferrer" onClick={() => { pixel('trackCustom', 'MessageTap', { channel: 'whatsapp' }); reportTap(leadId, 'whatsapp') }}
                         className="w-full py-4 rounded-xl text-white text-base font-bold" style={{ background: '#25D366' }}>
                         {t('Text us on WhatsApp', 'Написать нам в WhatsApp')}
                       </a>
