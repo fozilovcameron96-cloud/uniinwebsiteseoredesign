@@ -40,10 +40,15 @@
     <div id="root"></div>
     <!--
       Our own step log (20 Nov 2026): the "landed" row in the Sheet's
-      "Funnel (website)" tab, sent as soon as the page arrives so even visitors
-      who leave before the form loads are counted. StartForm.tsx logs the later
-      steps with the same visit id (window.__uiVisit). No names or numbers. Off
-      on local addresses, like the pixel.
+      "Funnel (website)" tab, sent as soon as the page is on screen, before the
+      form's code loads, so visitors who leave early are counted. StartForm.tsx
+      logs the later steps with the same visit id (window.__uiVisit). No names
+      or numbers. Off on local addresses, like the pixel.
+      21 Nov 2026: a page an app loads in the background (hidden) isn't counted
+      until it's actually shown ("preloaded"), and the first time it goes off
+      screen sends "left" with the seconds it was open, so a visit that ends
+      at the intro shows whether they read it or bounced. A tap also counts as
+      shown, in case a phone never reports the page as visible.
     -->
     <script>
       (function () {
@@ -54,9 +59,29 @@
           var locked = false;
           try { var at = Number(localStorage.getItem('uni_in_start_filtered')); locked = !!at && Date.now() - at < 30 * 86400000; } catch (e) {}
           var q = new URLSearchParams(location.search);
-          var body = JSON.stringify({ visit: id, step: 'landed', answer: locked ? 'locked' : '',
-            lang: /^\/en(\/|$)/.test(location.pathname) ? 'en' : 'ru', ad: q.get('utm_content') || '', ad_id: q.get('ad_id') || '' });
-          if (navigator.sendBeacon) navigator.sendBeacon('https://silk-leads-dashboard.vercel.app/api/funnel', new Blob([body], { type: 'text/plain' }));
+          var send = function (step, answer) {
+            var body = JSON.stringify({ visit: id, step: step, answer: answer,
+              lang: /^\/en(\/|$)/.test(location.pathname) ? 'en' : 'ru', ad: q.get('utm_content') || '', ad_id: q.get('ad_id') || '' });
+            if (navigator.sendBeacon) navigator.sendBeacon('https://silk-leads-dashboard.vercel.app/api/funnel', new Blob([body], { type: 'text/plain' }));
+          };
+          var hiddenAtLoad = document.visibilityState === 'hidden';
+          var shownAt = 0, left = false;
+          var show = function () {
+            if (shownAt) return;
+            shownAt = Date.now();
+            send('landed', locked ? 'locked' : hiddenAtLoad ? 'preloaded' : '');
+          };
+          var leave = function () {
+            if (!shownAt || left) return;
+            left = true;
+            send('left', Math.round((Date.now() - shownAt) / 1000) + 's');
+          };
+          document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') show(); else leave();
+          });
+          addEventListener('pagehide', leave);
+          addEventListener('pointerdown', show, { once: true });
+          if (!hiddenAtLoad) show();
         } catch (e) {}
       })();
     </script>

@@ -322,6 +322,10 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
     pixel('trackCustom', event, params)
     if (STEP_FOR_EVENT[event]) logStep(STEP_FOR_EVENT[event], lang, { question: params?.question, answer: params?.answer })
   }
+  // The form's code loaded on their phone (21 Nov 2026): landed but never
+  // "ready" means the page broke or was too slow for them, not that they
+  // read the intro and left.
+  useEffect(() => { logStep('ready', lang) }, []) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (screen === 0) count('FormStarted')
     if (screen === 'details') count('DetailsReached')
