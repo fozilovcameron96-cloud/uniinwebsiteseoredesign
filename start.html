@@ -103,10 +103,25 @@
           if (at && Date.now() - at < 30 * 86400000) return;
         } catch (e) {}
         var en = /^\/en(\/|$)/.test(location.pathname);
+        // Parents ad (22 Nov 2026): its visitors get an intro that carries on
+        // the ad's own headline, so a worried parent sees they're on the right
+        // page. Only for visitors from an ad named "...Parents...", so a student
+        // arriving from the main site isn't told "your child". Same test as
+        // StartForm.tsx's fromParentsAd: the link's utm_content, else the ad
+        // kept in sessionStorage.
+        var adName = '';
+        try { adName = new URLSearchParams(location.search).get('utm_content') || ''; } catch (e) {}
+        if (!adName) { try { adName = JSON.parse(sessionStorage.getItem('uni_in_ad') || '{}').utm_content || ''; } catch (e) {} }
+        var parents = !en && /parent/i.test(adName);
         var T = en
           ? { sub: 'Study abroad consultancy · London', h1: 'Study at a top UK university from £18,000 a year',
               p: "Answer a few quick questions and we'll send you the universities that fit your budget.",
               time: 'Takes about 1 minute.', start: 'Start' }
+          : parents
+          ? { sub: 'Консультанты по учёбе за рубежом · Лондон', h1: 'Ваш ребёнок не будет один в Британии',
+              lead: 'Наша команда в Лондоне поможет поступить в университет, встретит в аэропорту и будет рядом на каждом шагу. Обучение от £18 000 в год.',
+              p: 'Ответьте на 5 коротких вопросов, и мы подберём университеты под ваш бюджет.',
+              time: 'Около 1 минуты.', start: 'Начать' }
           : { sub: 'Консультанты по учёбе за рубежом · Лондон', h1: 'Учёба в топовом университете Великобритании от £18 000 в год',
               p: 'Ответьте на несколько коротких вопросов, и мы пришлём вам университеты, которые подходят под ваш бюджет.',
               time: 'Около 1 минуты.', start: 'Начать' };
@@ -125,6 +140,7 @@
           '<div class="h-1 bg-gray-100"><div class="h-1" style="width:0%;background:#F97316"></div></div>' +
           '<div class="px-5 pt-6 pb-10"><div>' +
             '<h1 class="text-[22px] font-bold text-gray-900 leading-snug">' + T.h1 + '</h1>' +
+            (T.lead ? '<p class="mt-3 text-[15px] text-gray-600 leading-relaxed">' + T.lead + '</p>' : '') +
             '<p class="mt-3 text-[15px] text-gray-600 leading-relaxed">' + T.p + '</p>' +
             '<p class="mt-2 text-sm text-gray-400">' + T.time + '</p>' +
             '<button type="button" onclick="window.__uiStartTapped=1;this.style.opacity=0.7" class="w-full py-4 rounded-xl text-white text-base font-bold mt-7" style="background:#F97316">' + T.start + '</button>' +

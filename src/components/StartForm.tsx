@@ -271,6 +271,19 @@ function rememberFilteredOut() {
 
 type Screen = 'intro' | number | 'details' | 'notNow' | 'thanks'
 
+// Came from the parents ad (22 Nov 2026, day 3 of Round 3): 120 of 143 ad
+// visitors who never started left within 5 seconds, and the parents ad says
+// "your child won't be alone in the UK" while the old intro talked about top
+// universities and price. Must give the same answer as start.html's instant
+// intro (the link's utm_content, else the ad kept in sessionStorage), or the
+// page jumps when React takes over.
+function fromParentsAd(): boolean {
+  let name = ''
+  try { name = new URLSearchParams(window.location.search).get('utm_content') ?? '' } catch { /* no URL access: fall through */ }
+  if (!name) name = adAnswers().ad_name ?? ''
+  return /parent/i.test(name)
+}
+
 // Language comes in as props, not from the site's LangContext: that context
 // imports every page's translations, and this page must stay small (start.html).
 export default function StartForm({ lang: pageLang, setLang }: { lang: string; setLang: (l: L) => void }) {
@@ -294,6 +307,9 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
   const [leadId, setLeadId] = useState('')
 
   const flow = flowFor(answers)
+  // Visitors from the parents ad see an intro that carries on the ad's
+  // headline (22 Nov 2026). Russian only: the parents ad is Russian.
+  const parents = lang === 'ru' && fromParentsAd()
 
   useEffect(() => {
     document.title = t('Apply in 1 minute | Universe In', 'Заявка за 1 минуту | Universe In')
@@ -395,7 +411,9 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
     if (!name.trim()) errs.name = t('Please enter your name', 'Пожалуйста, введите ваше имя')
     if (!phoneValid) errs.phone = 'invalid'
     if (!channel) errs.channel = t('Please choose WhatsApp or Telegram', 'Пожалуйста, выберите WhatsApp или Telegram')
-    if (!EMAIL.test(email.trim())) errs.email = t('Please enter a valid email', 'Пожалуйста, введите правильный email')
+    // Optional since 22 Nov 2026 (a £30k+ parent left the contact step after
+    // 4 seconds): only checked when they typed one. Dad works on WhatsApp.
+    if (email.trim() && !EMAIL.test(email.trim())) errs.email = t('Please enter a valid email', 'Пожалуйста, введите правильный email')
     setPhoneTouched(true)
     setErrors(errs)
     if (Object.keys(errs).length || !parsed) return
@@ -512,11 +530,18 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
           {screen === 'intro' && (
             <div>
               <h1 className="text-[22px] font-bold text-gray-900 leading-snug">
-                {t('Study at a top UK university from £18,000 a year', 'Учёба в топовом университете Великобритании от £18 000 в год')}
+                {parents ? 'Ваш ребёнок не будет один в Британии'
+                  : t('Study at a top UK university from £18,000 a year', 'Учёба в топовом университете Великобритании от £18 000 в год')}
               </h1>
+              {parents && (
+                <p className="mt-3 text-[15px] text-gray-600 leading-relaxed">
+                  Наша команда в Лондоне поможет поступить в университет, встретит в аэропорту и будет рядом на каждом шагу. Обучение от £18 000 в год.
+                </p>
+              )}
               <p className="mt-3 text-[15px] text-gray-600 leading-relaxed">
-                {t("Answer a few quick questions and we'll send you the universities that fit your budget.",
-                  'Ответьте на несколько коротких вопросов, и мы пришлём вам университеты, которые подходят под ваш бюджет.')}
+                {parents ? 'Ответьте на 5 коротких вопросов, и мы подберём университеты под ваш бюджет.'
+                  : t("Answer a few quick questions and we'll send you the universities that fit your budget.",
+                    'Ответьте на несколько коротких вопросов, и мы пришлём вам университеты, которые подходят под ваш бюджет.')}
               </p>
               {/* No "free" here on purpose (founder, 18 Nov): it pulls in people
                   who read it as "studying is free", the dead leads this page
@@ -558,7 +583,8 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
             <form onSubmit={submit} noValidate>
               {backLink}
               <h2 className="text-lg font-bold text-gray-900">{t('Where should we send your options?', 'Куда отправить ваши варианты?')}</h2>
-              <p className="mt-1 text-sm text-gray-500">{t('A consultant will message you. No cold calls, no spam.', 'Консультант напишет вам. Без звонков и спама.')}</p>
+              <p className="mt-1 text-sm text-gray-500">{t('Our consultant in London will message you personally within the day. No cold calls, no spam.',
+                'Вам лично напишет наш консультант из Лондона в течение дня. Без звонков и спама.')}</p>
 
               <label className="block mt-5 text-xs font-bold text-gray-500 uppercase tracking-wide" htmlFor="sf-name">{t('Full name', 'Имя и фамилия')}</label>
               <input id="sf-name" autoComplete="name" value={name} onChange={e => setName(e.target.value)}
@@ -607,7 +633,7 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
               </div>
               {errors.channel && <p className="mt-1 text-sm text-red-500">{errors.channel}</p>}
 
-              <label className="block mt-4 text-xs font-bold text-gray-500 uppercase tracking-wide" htmlFor="sf-email">Email</label>
+              <label className="block mt-4 text-xs font-bold text-gray-500 uppercase tracking-wide" htmlFor="sf-email">{t('Email (optional)', 'Email (необязательно)')}</label>
               <input id="sf-email" type="email" inputMode="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)}
                 className="mt-1.5 w-full h-12 px-3.5 rounded-xl border-2 border-gray-200 text-base focus:border-orange-500 outline-none" />
               {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
