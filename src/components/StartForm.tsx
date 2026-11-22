@@ -531,11 +531,11 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
             <div>
               <h1 className="text-[22px] font-bold text-gray-900 leading-snug">
                 {parents ? 'Ваш ребёнок не будет один в Британии'
-                  : t('Study at a top UK university from £18,000 a year', 'Учёба в топовом университете Великобритании от £18 000 в год')}
+                  : t('Study at a UK university from £10,000 a year', 'Учёба в университете Великобритании от £10 000 в год')}
               </h1>
               {parents && (
                 <p className="mt-3 text-[15px] text-gray-600 leading-relaxed">
-                  Наша команда в Лондоне поможет поступить в университет, встретит в аэропорту и будет рядом на каждом шагу. Обучение от £18 000 в год.
+                  Наша команда в Лондоне поможет поступить в университет, встретит в аэропорту и будет рядом на каждом шагу. Обучение от £10 000 в год.
                 </p>
               )}
               <p className="mt-3 text-[15px] text-gray-600 leading-relaxed">

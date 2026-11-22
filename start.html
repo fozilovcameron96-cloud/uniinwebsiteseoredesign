@@ -114,15 +114,15 @@
         if (!adName) { try { adName = JSON.parse(sessionStorage.getItem('uni_in_ad') || '{}').utm_content || ''; } catch (e) {} }
         var parents = !en && /parent/i.test(adName);
         var T = en
-          ? { sub: 'Study abroad consultancy · London', h1: 'Study at a top UK university from £18,000 a year',
+          ? { sub: 'Study abroad consultancy · London', h1: 'Study at a UK university from £10,000 a year',
               p: "Answer a few quick questions and we'll send you the universities that fit your budget.",
               time: 'Takes about 1 minute.', start: 'Start' }
           : parents
           ? { sub: 'Консультанты по учёбе за рубежом · Лондон', h1: 'Ваш ребёнок не будет один в Британии',
-              lead: 'Наша команда в Лондоне поможет поступить в университет, встретит в аэропорту и будет рядом на каждом шагу. Обучение от £18 000 в год.',
+              lead: 'Наша команда в Лондоне поможет поступить в университет, встретит в аэропорту и будет рядом на каждом шагу. Обучение от £10 000 в год.',
               p: 'Ответьте на 5 коротких вопросов, и мы подберём университеты под ваш бюджет.',
               time: 'Около 1 минуты.', start: 'Начать' }
-          : { sub: 'Консультанты по учёбе за рубежом · Лондон', h1: 'Учёба в топовом университете Великобритании от £18 000 в год',
+          : { sub: 'Консультанты по учёбе за рубежом · Лондон', h1: 'Учёба в университете Великобритании от £10 000 в год',
               p: 'Ответьте на несколько коротких вопросов, и мы пришлём вам университеты, которые подходят под ваш бюджет.',
               time: 'Около 1 минуты.', start: 'Начать' };
         var on = 'bg-white text-orange-600', off = 'bg-white/20 text-white';
