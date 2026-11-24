@@ -168,8 +168,11 @@
             '<p class="mt-2 text-[15px] text-gray-600 leading-relaxed">' + T.p + '</p>' +
             '<div class="relative mt-3.5 rounded-[14px] overflow-hidden aspect-square bg-gray-900">' +
               '<img src="/vsl/dad-' + lang + '.jpg" alt="" class="w-full h-full object-cover block">' +
-              '<div class="absolute top-2.5 right-2.5 w-[34px] h-[34px] rounded-full bg-black/55 flex items-center justify-center">' +
-                icon('<path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/>', 18, '#fff') +
+              '<div class="absolute inset-0 w-full h-full flex items-start justify-start p-3">' +
+                '<span class="flex items-center gap-1.5 rounded-full bg-black/60 pl-3 pr-3.5 py-2 text-sm font-semibold text-white">' +
+                  '<svg width="14" height="14" viewBox="0 0 24 24"><polygon points="7 4 20 12 7 20 7 4" fill="#fff"/></svg>' +
+                  (en ? 'Watch · 40 sec' : 'Смотреть · 40 сек') +
+                '</span>' +
               '</div>' +
             '</div>' +
             '<h2 class="mt-8 text-lg font-bold text-gray-900">' + T.h2 + '</h2>' +

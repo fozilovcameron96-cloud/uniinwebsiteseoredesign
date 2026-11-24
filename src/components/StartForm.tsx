@@ -312,57 +312,46 @@ const USPS: [string, string, string][] = [
   ['<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.9-.9L3 20.5l1.5-4.6A8.4 8.4 0 0 1 12 3.1a8.4 8.4 0 0 1 9 8.4z"/>',
     'Free consultation', 'Бесплатная консультация'],
 ]
-const SPEAKER_OFF = '<path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/>'
-const SPEAKER_ON = '<path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/>'
-const PLAY = '<polygon points="7 4 20 12 7 20 7 4" fill="#fff"/>'
+const PLAY ='<polygon points="7 4 20 12 7 20 7 4" fill="#fff"/>'
 
 // Dad's interview (Projects/uni-in/organic/dad-video, 720x720 crop of the
-// 9:16 VSL). Plays muted with burned-in captions, because in-app browsers only
-// autoplay muted. A tap turns the sound on and starts it from the beginning; a
-// second tap mutes it. If the browser refuses to autoplay, a play button shows
-// instead. React (not start.html) creates the <video>: start.html shows only
-// its poster, so the file downloads once and never slows the headline.
+// 9:16 VSL). Waits for a tap (founder, 24 Nov 2026: "make it so they have to
+// press play"), then plays with sound from the beginning; a tap pauses it, and
+// at the end the play button comes back. Until then only the poster and a
+// little of the file load, so the page stays fast. React (not start.html)
+// creates the <video>: start.html draws the same poster and play button.
 function IntroVideo({ lang }: { lang: L }) {
   const ref = useRef<HTMLVideoElement>(null)
-  const [sound, setSound] = useState(false)
-  const [blocked, setBlocked] = useState(false)
-  useEffect(() => {
-    const v = ref.current
-    if (!v) return
-    // Set as properties too: React's muted prop alone doesn't always count as
-    // "muted" for iOS autoplay.
-    v.muted = true
-    v.defaultMuted = true
-    v.play().then(() => setBlocked(false), () => setBlocked(true))
-  }, [lang])
+  const [playing, setPlaying] = useState(false)
   function toggle() {
     const v = ref.current
     if (!v) return
-    if (v.muted || v.paused) {
+    if (v.paused) {
       v.muted = false
-      v.currentTime = 0
-      v.play().then(() => { setSound(true); setBlocked(false) }, () => setBlocked(true))
+      if (v.ended) v.currentTime = 0
+      v.play().then(() => setPlaying(true), () => setPlaying(false))
     } else {
-      v.muted = true
-      setSound(false)
+      v.pause()
+      setPlaying(false)
     }
   }
-  const svg = (d: string, size: number) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: d }} />
-  )
   return (
-    <div className="relative mt-3.5 rounded-[14px] overflow-hidden aspect-square bg-gray-900" onClick={toggle}>
+    <div className="relative mt-3.5 rounded-[14px] overflow-hidden aspect-square bg-gray-900 cursor-pointer" onClick={toggle}>
       <video ref={ref} key={lang} src={`/vsl/dad-${lang}.mp4`} poster={`/vsl/dad-${lang}.jpg`}
-        muted autoPlay playsInline loop preload="auto" className="w-full h-full object-cover block" />
-      {blocked && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full bg-black/55 flex items-center justify-center">{svg(PLAY, 28)}</div>
-        </div>
+        playsInline preload="metadata" onEnded={() => setPlaying(false)} onPause={() => setPlaying(false)}
+        className="w-full h-full object-cover block" />
+      {/* A label in the corner, not a big button in the middle: the middle of
+          the poster is the "about 40 students" caption. The whole square is
+          the tap target. */}
+      {!playing && (
+        <button type="button" aria-label={lang === 'en' ? 'Play video' : 'Смотреть видео'}
+          className="absolute inset-0 w-full h-full flex items-start justify-start p-3">
+          <span className="flex items-center gap-1.5 rounded-full bg-black/60 pl-3 pr-3.5 py-2 text-sm font-semibold text-white">
+            <svg width="14" height="14" viewBox="0 0 24 24" dangerouslySetInnerHTML={{ __html: PLAY }} />
+            {lang === 'en' ? 'Watch · 40 sec' : 'Смотреть · 40 сек'}
+          </span>
+        </button>
       )}
-      <button type="button" aria-label={sound ? 'Mute' : 'Sound on'}
-        className="absolute top-2.5 right-2.5 w-[34px] h-[34px] rounded-full bg-black/55 flex items-center justify-center">
-        {svg(sound ? SPEAKER_ON : SPEAKER_OFF, 18)}
-      </button>
     </div>
   )
 }
