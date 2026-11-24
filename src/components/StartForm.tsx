@@ -271,6 +271,102 @@ function rememberFilteredOut() {
 
 type Screen = 'intro' | number | 'details' | 'notNow' | 'thanks'
 
+// ─── INTRO (24 Nov 2026) ──────────────────────────────────────────────────────
+// Rebuilt from Mark's landing-page template (ads/What_We_Learnt_Landing_Page_
+// Template.md): 74% of ad visitors left within 3 s and nothing on the page
+// proved Uni In is real. Now: the headline answers the ad, dad's video from
+// London (proof, muted with captions), the Start button pinned to the bottom of
+// the screen, then real offer letters and 3 lines. Copy picked by the founder
+// from mockups (option 2 for both pages, option C below the video). start.html
+// draws the same intro before React loads, so every word and class here must
+// match it.
+const INTRO = {
+  parents: {
+    h1: 'Первый день вашего ребёнка в университете Великобритании, и наша команда рядом',
+    p: 'Оффер, виза, встреча в аэропорту, полная поддержка во время учёбы.',
+  },
+  ru: {
+    h1: 'Не знаете, как поступить? Начните здесь.',
+    p: 'Ответьте на 5 коротких вопросов, и наша команда в Лондоне пришлёт вам университеты Великобритании под ваши оценки и бюджет.',
+  },
+  en: {
+    h1: "Don't know how to get in? Start here.",
+    p: 'Answer 5 quick questions. Our team in London will send you the UK universities that fit your grades and budget.',
+  },
+}
+// Tops of real offer letters (names blurred), 360x480, made from the video's
+// own crops. Liverpool is left out on purpose: its letter has a stock photo of
+// a student who doesn't look like our audience.
+const OFFER_THUMBS = ['manchester', 'york', 'cardiff', 'reading', 'stirling', 'royal-holloway']
+const ic = (d: string) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={OR} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: d }} />
+)
+// "Free consultation" is back on purpose (founder, 24 Nov): the £10,000 price
+// now sits under the button on every screen, so "free" can't be read as
+// "studying is free", which is why it was banned on 18 Nov.
+const USPS: [string, string, string][] = [
+  ['<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>',
+    'With you at every step, from the first message to graduation', 'С вами на каждом шаге: от первого сообщения до выпуска'],
+  ['<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/>',
+    'Partners include Manchester, Bristol and Birmingham', 'Среди партнёров: Manchester, Bristol, Birmingham'],
+  ['<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.9-.9L3 20.5l1.5-4.6A8.4 8.4 0 0 1 12 3.1a8.4 8.4 0 0 1 9 8.4z"/>',
+    'Free consultation', 'Бесплатная консультация'],
+]
+const SPEAKER_OFF = '<path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/>'
+const SPEAKER_ON = '<path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/>'
+const PLAY = '<polygon points="7 4 20 12 7 20 7 4" fill="#fff"/>'
+
+// Dad's interview (Projects/uni-in/organic/dad-video, 720x720 crop of the
+// 9:16 VSL). Plays muted with burned-in captions, because in-app browsers only
+// autoplay muted. A tap turns the sound on and starts it from the beginning; a
+// second tap mutes it. If the browser refuses to autoplay, a play button shows
+// instead. React (not start.html) creates the <video>: start.html shows only
+// its poster, so the file downloads once and never slows the headline.
+function IntroVideo({ lang }: { lang: L }) {
+  const ref = useRef<HTMLVideoElement>(null)
+  const [sound, setSound] = useState(false)
+  const [blocked, setBlocked] = useState(false)
+  useEffect(() => {
+    const v = ref.current
+    if (!v) return
+    // Set as properties too: React's muted prop alone doesn't always count as
+    // "muted" for iOS autoplay.
+    v.muted = true
+    v.defaultMuted = true
+    v.play().then(() => setBlocked(false), () => setBlocked(true))
+  }, [lang])
+  function toggle() {
+    const v = ref.current
+    if (!v) return
+    if (v.muted || v.paused) {
+      v.muted = false
+      v.currentTime = 0
+      v.play().then(() => { setSound(true); setBlocked(false) }, () => setBlocked(true))
+    } else {
+      v.muted = true
+      setSound(false)
+    }
+  }
+  const svg = (d: string, size: number) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: d }} />
+  )
+  return (
+    <div className="relative mt-3.5 rounded-[14px] overflow-hidden aspect-square bg-gray-900" onClick={toggle}>
+      <video ref={ref} key={lang} src={`/vsl/dad-${lang}.mp4`} poster={`/vsl/dad-${lang}.jpg`}
+        muted autoPlay playsInline loop preload="auto" className="w-full h-full object-cover block" />
+      {blocked && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-black/55 flex items-center justify-center">{svg(PLAY, 28)}</div>
+        </div>
+      )}
+      <button type="button" aria-label={sound ? 'Mute' : 'Sound on'}
+        className="absolute top-2.5 right-2.5 w-[34px] h-[34px] rounded-full bg-black/55 flex items-center justify-center">
+        {svg(sound ? SPEAKER_ON : SPEAKER_OFF, 18)}
+      </button>
+    </div>
+  )
+}
+
 // Came from the parents ad (22 Nov 2026, day 3 of Round 3): 120 of 143 ad
 // visitors who never started left within 5 seconds, and the parents ad says
 // "your child won't be alone in the UK" while the old intro talked about top
@@ -502,7 +598,10 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
       <div className="mx-auto w-full max-w-[440px] bg-white sm:rounded-2xl sm:shadow-sm overflow-hidden min-h-screen sm:min-h-0">
 
         {/* Header: like an instant form's cover and page name */}
-        <div className="relative h-24" style={{ background: `linear-gradient(135deg, ${OR}, ${OR2})` }}>
+        {/* Slimmer since 24 Nov 2026 (was h-24 with a 56px logo), so the
+            headline, the video and the pinned button all fit on one phone
+            screen. */}
+        <div className="relative h-14" style={{ background: `linear-gradient(135deg, ${OR}, ${OR2})` }}>
           <div className="absolute top-3 right-3 flex gap-1">
             {(['ru', 'en'] as const).map(l => (
               <button key={l} type="button" onClick={() => setLang(l)}
@@ -514,10 +613,10 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
           {/* Round, like a Facebook page's profile picture. logo-round.png is the
               640px WhatsApp profile logo (ads/assets/whatsapp-profile-uniin.png),
               made to sit inside a circle crop, scaled to 192px. */}
-          <img src="/logo-round.png" alt="Universe In" width={56} height={56}
-            className="absolute -bottom-7 left-5 w-14 h-14 rounded-full object-cover bg-black ring-4 ring-white shadow" />
+          <img src="/logo-round.png" alt="Universe In" width={44} height={44}
+            className="absolute -bottom-[22px] left-5 w-11 h-11 rounded-full object-cover bg-black ring-4 ring-white shadow" />
         </div>
-        <div className="pl-[88px] pr-5 pt-2 pb-3">
+        <div className="pl-[76px] pr-5 pt-1.5 pb-2">
           <div className="font-bold text-gray-900 leading-tight">Universe In</div>
           <div className="text-xs text-gray-500">{t('Study abroad consultancy · London', 'Консультанты по учёбе за рубежом · Лондон')}</div>
         </div>
@@ -525,33 +624,56 @@ export default function StartForm({ lang: pageLang, setLang }: { lang: string; s
           <div className="h-1 transition-all duration-300" style={{ width: `${progress * 100}%`, background: OR }} />
         </div>
 
-        <div className="px-5 pt-6 pb-10">
+        <div className={screen === 'intro' ? 'px-5 pt-4 pb-32' : 'px-5 pt-6 pb-10'}>
 
-          {screen === 'intro' && (
-            <div>
-              <h1 className="text-[22px] font-bold text-gray-900 leading-snug">
-                {parents ? 'Ваш ребёнок не будет один в Британии'
-                  : t('Study at a UK university from £10,000 a year', 'Учёба в университете Великобритании от £10 000 в год')}
-              </h1>
-              {parents && (
-                <p className="mt-3 text-[15px] text-gray-600 leading-relaxed">
-                  Наша команда в Лондоне поможет поступить в университет, встретит в аэропорту и будет рядом на каждом шагу. Обучение от £10 000 в год.
+          {screen === 'intro' && (() => {
+            const copy = parents ? INTRO.parents : INTRO[lang]
+            return (
+              <div>
+                <h1 className="text-[22px] font-bold text-gray-900 leading-snug">{copy.h1}</h1>
+                <p className="mt-2 text-[15px] text-gray-600 leading-relaxed">{copy.p}</p>
+                <IntroVideo lang={lang} />
+
+                <h2 className="mt-8 text-lg font-bold text-gray-900">{t('Real offers our students received', 'Реальные офферы наших студентов')}</h2>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  {OFFER_THUMBS.map(n => (
+                    <img key={n} src={`/vsl/offers/${n}.webp`} alt="" width={360} height={480} loading="lazy"
+                      className="w-full aspect-[3/4] object-cover rounded-lg border border-gray-200" />
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-gray-400">{t('Names hidden for privacy.', 'Имена скрыты.')}</p>
+                <ul className="mt-4 space-y-3">
+                  {USPS.map(([d, en, ru]) => (
+                    <li key={en} className="flex items-center gap-3 text-[15px] font-semibold text-gray-900 leading-snug">
+                      <span className="flex-none w-9 h-9 rounded-[10px] bg-orange-50 flex items-center justify-center">{ic(d)}</span>
+                      {t(en, ru)}
+                    </li>
+                  ))}
+                </ul>
+                {/* Required by the plane photo's licence (CC BY-SA 4.0), see
+                    Projects/uni-in/organic/dad-video/CREDITS.md. */}
+                <p className="mt-5 text-[10px] text-gray-400">
+                  {t('Plane photo in the video: MarcelX42 / Wikimedia Commons, ', 'Фото самолёта в видео: MarcelX42 / Wikimedia Commons, ')}
+                  <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" className="underline">CC BY-SA 4.0</a>
                 </p>
-              )}
-              <p className="mt-3 text-[15px] text-gray-600 leading-relaxed">
-                {parents ? 'Ответьте на 5 коротких вопросов, и мы подберём университеты под ваш бюджет.'
-                  : t("Answer a few quick questions and we'll send you the universities that fit your budget.",
-                    'Ответьте на несколько коротких вопросов, и мы пришлём вам университеты, которые подходят под ваш бюджет.')}
-              </p>
-              {/* No "free" here on purpose (founder, 18 Nov): it pulls in people
-                  who read it as "studying is free", the dead leads this page
-                  exists to keep out. */}
-              <p className="mt-2 text-sm text-gray-400">{t('Takes about 1 minute.', 'Около 1 минуты.')}</p>
-              <button type="button" onClick={() => setScreen(0)} className={`${primaryBtn} mt-7`} style={{ background: OR }}>
-                {t('Start', 'Начать')}
-              </button>
-            </div>
-          )}
+
+                {/* Pinned to the bottom of the screen, so Start is always in
+                    reach while the video plays. The price stays visible here:
+                    it's the filter ("£10k or nothing"). */}
+                <div className="fixed bottom-0 inset-x-0 z-10">
+                  <div className="mx-auto max-w-[440px] bg-white px-5 pt-3 shadow-[0_-6px_16px_rgba(0,0,0,0.08)]"
+                    style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
+                    <button type="button" onClick={() => setScreen(0)} className={primaryBtn} style={{ background: OR }}>
+                      {t('Find my universities', 'Подобрать университеты')}
+                    </button>
+                    <p className="mt-1.5 text-xs text-gray-500 text-center">
+                      {t('From £10,000 a year · September 2027 intake open', 'Обучение от £10 000 в год · набор на сентябрь 2027')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
 
           {typeof screen === 'number' && flow[screen] && (() => {
             const q = flow[screen]
