@@ -19,5 +19,10 @@
 /en/start   /start.html  200
 /uz/start   /start.html  200
 
+# The Meta instant form's thank-you page (25 Nov 2026): a plain file that
+# sends the lead on to dad's WhatsApp. See public/whatsapp.html.
+/whatsapp      /whatsapp.html  200
+/en/whatsapp   /whatsapp.html  200
+
 # Everything else is the single-page site.
 /*  /index.html  200
